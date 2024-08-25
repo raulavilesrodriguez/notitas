@@ -7,5 +7,6 @@
     <string name="banks">Finanzas</string>
     <string name="fun">Divertido</string>
     <string name="personal">Personales</string>
+    <string name="shopping">Compras</string>
     <string name="others">Otros</string>
 </resources>

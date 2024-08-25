@@ -53,7 +53,7 @@ fun NoteCard(
             Spacer(modifier = Modifier.width(dimensionResource(id = R.dimen.padding_very_small)))
             Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    text = note.group,
+                    text = note.topic,
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier
                         .padding(start = dimensionResource(id = R.dimen.padding_small))

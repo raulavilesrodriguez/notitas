@@ -8,6 +8,7 @@ object LocalAvatarsData {
         Avatar(R.drawable.work, R.string.work),
         Avatar(R.drawable.money, R.string.banks),
         Avatar(R.drawable.`fun`, R.string.`fun`),
-        Avatar(R.drawable.personal, R.string.personal)
+        Avatar(R.drawable.personal, R.string.personal),
+        Avatar(R.drawable.shopping, R.string.shopping)
     )
 }
