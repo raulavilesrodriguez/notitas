@@ -1,12 +1,17 @@
 package com.example.empresa1.ui
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -23,15 +28,32 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.empresa1.R
 import com.example.empresa1.data.Avatar
+import com.example.empresa1.data.LocalAvatarsData
 import com.example.empresa1.data.Note
 import com.example.empresa1.ui.theme.Empresa1Theme
 
 @Composable
 fun NotesList(
-
+    notes: List<Note>,
+    onNoteClick: (Note) -> Unit,
+    contentPadding: PaddingValues,
     modifier: Modifier = Modifier
 ){
-
+    LazyColumn(
+        modifier = modifier.fillMaxWidth(),
+        contentPadding = contentPadding
+    ) {
+        items(items = notes, key = {it.id}){
+            val avatar = LocalAvatarsData.avatars.firstOrNull { avatar ->
+                stringResource(id = avatar.description) == it.topic} ?: LocalAvatarsData.avatars.first()
+            NoteCard(
+                note = it,
+                avatar = avatar,
+                modifier = Modifier
+                    .clickable { onNoteClick(it) }
+            )
+        }
+    }
 }
 
 @Composable
@@ -84,6 +106,7 @@ private fun NoteImage(
         contentDescription = stringResource(id = description)
     )
 }
+
 
 @Preview(showBackground = true)
 @Composable
