@@ -81,4 +81,7 @@ dependencies {
 
     // Data Store dependencies
     implementation(libs.androidx.datastore.preferences)
+
+    // to Adaptive apps
+    implementation(libs.androidx.material3.adaptive)
 }

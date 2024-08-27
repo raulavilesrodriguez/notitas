@@ -35,6 +35,7 @@ import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.empresa1.NoteTopAppBar
@@ -42,15 +43,21 @@ import com.example.empresa1.R
 import com.example.empresa1.data.Avatar
 import com.example.empresa1.data.LocalAvatarsData
 import com.example.empresa1.data.Note
+import com.example.empresa1.ui.navigation.NavigationDestination
 import com.example.empresa1.ui.theme.Empresa1Theme
 
-
+object NoteDestination : NavigationDestination {
+    override val route = "notes"
+    override val titleRes = R.string.app_name
+}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
     navigateToItemEntry: () -> Unit,
-    navigateToItemUpdate: (Int) -> Unit,
+    notes: List<Note>,
+    onValueChange: (String) -> Unit,
+    onNoteClick: (Int) -> Unit,
     modifier: Modifier = Modifier
 ){
     val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
@@ -58,7 +65,7 @@ fun HomeScreen(
         modifier = modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
             NoteTopAppBar(
-                title = "hola",
+                title = stringResource(id = NoteDestination.titleRes),
                 canNavigateBack = false
             )
         },
@@ -76,6 +83,9 @@ fun HomeScreen(
         }
     ) {innerPadding ->
         HomeBody(
+            notes = notes,
+            onValueChange = onValueChange,
+            onNoteClick = onNoteClick,
             modifier = modifier.fillMaxSize(),
             contentPadding = innerPadding
         )
@@ -85,17 +95,39 @@ fun HomeScreen(
 
 @Composable
 private fun HomeBody(
+    notes: List<Note>,
+    onValueChange: (String) -> Unit,
+    onNoteClick: (Int) -> Unit,
     modifier: Modifier = Modifier,
     contentPadding: PaddingValues = PaddingValues(0.dp)
 ){
-
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = modifier
+    ) {
+        if(notes.isEmpty()){
+            Text(
+                text = stringResource(id = R.string.no_notes),
+                textAlign = TextAlign.Center,
+                style = MaterialTheme.typography.titleLarge,
+                modifier = Modifier.padding(contentPadding)
+            )
+        } else {
+            NotesList(
+                notes = notes,
+                onValueChange = onValueChange,
+                onNoteClick = onNoteClick,
+                contentPadding = contentPadding
+            )
+        }
+    }
 }
 
 @Composable
 private fun NotesList(
     notes: List<Note>,
     onValueChange: (String) -> Unit,
-    onNoteClick: (Note) -> Unit,
+    onNoteClick: (Int) -> Unit,
     contentPadding: PaddingValues,
     modifier: Modifier = Modifier
 ){
@@ -116,7 +148,7 @@ private fun NotesList(
                 note = it,
                 avatar = avatar,
                 modifier = Modifier
-                    .clickable { onNoteClick(it) }
+                    .clickable { onNoteClick(it.id) }
             )
         }
     }
@@ -124,9 +156,9 @@ private fun NotesList(
 
 @Composable
 fun SearchBar(
+    modifier: Modifier = Modifier,
     value: String = "",
     onValueChange: (String) -> Unit = {},
-    modifier: Modifier = Modifier
 ){
     TextField(
         value = value,
