@@ -1,36 +1,47 @@
 package com.example.empresa1
 
-import androidx.compose.material3.CenterAlignedTopAppBar
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBarScrollBehavior
+import androidx.activity.compose.BackHandler
+import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
+import androidx.compose.material3.adaptive.layout.AnimatedPane
+import androidx.compose.material3.adaptive.layout.ListDetailPaneScaffold
+import androidx.compose.material3.adaptive.layout.ListDetailPaneScaffoldRole
+import androidx.compose.material3.adaptive.navigation.rememberListDetailPaneScaffoldNavigator
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.painterResource
+import com.example.empresa1.data.Note
+import com.example.empresa1.ui.HomeScreen
 
-@OptIn(ExperimentalMaterial3Api::class)
+
+@OptIn(ExperimentalMaterial3AdaptiveApi::class)
 @Composable
-fun NoteTopAppBar(
-    title: String,
-    canNavigateBack: Boolean,
-    modifier: Modifier = Modifier,
-    scrollBehavior: TopAppBarScrollBehavior? = null,
-    navigateUp: () -> Unit = {}
+fun NoteAppContent(
+    notes: List<Note>,
+    onValueChange: (String) -> Unit,
+    onNoteClick: (Note) -> Unit,
 ){
-    CenterAlignedTopAppBar(
-        title = { Text(text = title) },
-        modifier = modifier,
-        scrollBehavior = scrollBehavior,
-        navigationIcon = {
-            if(canNavigateBack) {
-                IconButton(onClick = navigateUp) {
-                    Icon(
-                        painter = painterResource(id = R.drawable.arrow_back),
-                        contentDescription = null
-                    )
-                }
+    val navigator = rememberListDetailPaneScaffoldNavigator<Long>()
+
+    BackHandler(navigator.canNavigateBack()) {
+        navigator.navigateBack()
+    }
+
+    ListDetailPaneScaffold(
+        directive = navigator.scaffoldDirective,
+        value = navigator.scaffoldValue,
+        listPane = {
+                   AnimatedPane {
+                       HomeScreen(
+                           notes = notes,
+                           onValueChange = onValueChange,
+                           onNoteClick = {
+                               onNoteClick(it)
+                               navigator.navigateTo(ListDetailPaneScaffoldRole.Detail, it.id)
+                           }
+                       )
+                   }
+        },
+        detailPane = {
+            AnimatedPane {
+
             }
         }
     )

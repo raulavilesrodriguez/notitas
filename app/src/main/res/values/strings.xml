@@ -3,6 +3,7 @@
     <string name="notes_search">Buscar</string>
     <string name="favorite_notes">Favoritos</string>
     <string name="notes_routes">Notas de %s</string>
+    <string name="Topics">Categoría</string>
     <string name="work">Trabajo</string>
     <string name="banks">Finanzas</string>
     <string name="fun">Divertido</string>
