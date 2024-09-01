@@ -34,7 +34,7 @@ fun NoteAppContent(
                            onValueChange = onValueChange,
                            onNoteClick = {
                                onNoteClick(it)
-                               navigator.navigateTo(ListDetailPaneScaffoldRole.Detail, it.id)
+                               navigator.navigateTo(ListDetailPaneScaffoldRole.Detail, it.id.toLong())
                            }
                        )
                    }

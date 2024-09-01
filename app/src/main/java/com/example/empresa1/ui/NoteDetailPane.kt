@@ -22,6 +22,7 @@ import com.example.empresa1.R
 import com.example.empresa1.data.Note
 import com.example.empresa1.data.Topics
 import com.example.empresa1.ui.components.NoteSpinnerRow
+import com.example.empresa1.ui.components.RatingInputRow
 
 @Composable
 fun NoteDetailPane(
@@ -69,6 +70,12 @@ fun NoteDetailPane(
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true,
                 textStyle = MaterialTheme.typography.bodyLarge
+            )
+            RatingInputRow(
+                rating = note.rating,
+                onRatingChange = {rating ->
+                    onValueChange()
+                }
             )
         }
     }
