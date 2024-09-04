@@ -14,4 +14,7 @@ class OfflineNotesRepository(private val noteDao: NoteDao): NoteRepository {
     override fun getAllFavoritesStream(): Flow<List<Note>> = noteDao.getAllFavorites()
 
     override fun getNoteStream(id: Int): Flow<Note> = noteDao.getNote(id)
+
+    override fun lookingForNotesStream(partName: String): Flow<List<Note>> = noteDao.lookingForNotes(partName)
+
 }
