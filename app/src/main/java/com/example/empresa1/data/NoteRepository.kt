@@ -11,7 +11,7 @@ interface NoteRepository {
 
     fun getAllNotesStream(): Flow<List<Note>>
 
-    fun getAllFavoritesStream(): Flow<List<Note>>
+    fun getAllFavoritesStream(partName : String): Flow<List<Note>>
 
     fun getNoteStream(id: Int): Flow<Note>
 

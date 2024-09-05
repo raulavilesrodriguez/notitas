@@ -43,6 +43,7 @@ import com.example.empresa1.ui.theme.Empresa1Theme
 fun HomeScreen(
     notes: List<Note>,
     onValueChange: (String) -> Unit,
+    nameValue: String,
     onNoteClick: (Note) -> Unit,
     modifier: Modifier = Modifier
 ){
@@ -61,6 +62,7 @@ fun HomeScreen(
             NotesList(
                 notes = notes,
                 onValueChange = onValueChange,
+                nameValue = nameValue,
                 onNoteClick = onNoteClick,
             )
         }
@@ -72,6 +74,7 @@ fun HomeScreen(
 private fun NotesList(
     notes: List<Note>,
     onValueChange: (String) -> Unit,
+    nameValue: String,
     onNoteClick: (Note) -> Unit,
     modifier: Modifier = Modifier
 ){
@@ -80,6 +83,7 @@ private fun NotesList(
     ) {
         item {
             SearchBar(
+                value = nameValue,
                 onValueChange = onValueChange,
                 modifier = Modifier
             )

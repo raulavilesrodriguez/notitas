@@ -26,17 +26,6 @@ class NoteViewModel (
         private const val TIMEOUT_MILLS = 5_000L
     }
 
-    val listAllNotesUIState : StateFlow<AllNotesUIState>  =
-    noteRepository.getAllNotesStream().map {
-        AllNotesUIState(
-            notesList = it,
-        )
-    }  .stateIn(
-    scope = viewModelScope,
-    started = SharingStarted.WhileSubscribed(TIMEOUT_MILLS),
-    initialValue = AllNotesUIState()
-    )
-
     fun setSelectedNote(note: Note){
         _uiState.update {
             it.copy(selectedNote = note)
@@ -61,6 +50,22 @@ class NoteViewModel (
             initialValue = AllNotesUIState()
         )
 
+    @OptIn(ExperimentalCoroutinesApi::class)
+    val favoritesUIState: StateFlow<AllNotesUIState> =
+        _uiState.flatMapLatest { uiState ->
+            noteRepository.getAllFavoritesStream(uiState.partName).map {
+                AllNotesUIState(it)
+            }
+        }.stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(TIMEOUT_MILLS),
+            initialValue = AllNotesUIState()
+        )
+
+    fun resetInput(){
+        _uiState.value = NoteUIState()
+    }
+
 
 
 }
@@ -73,6 +78,7 @@ data class AllNotesUIState(
 )
 
 data class NoteUIState(
-    val selectedNote : Note? = null,
+    val notesList: AllNotesUIState = AllNotesUIState(),
+    val selectedNote : Note? = notesList.notesList.firstOrNull(),
     val partName: String = ""
 )

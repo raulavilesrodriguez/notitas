@@ -37,15 +37,17 @@ private val WINDOW_WIDTH_LARGE = 1200.dp
 fun NoteApp(
     viewModel: NoteViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ){
-    val allNotesUiState by viewModel.listAllNotesUIState.collectAsState()
+    val lookingForNotesUiState by viewModel.lookingForNotesUiState.collectAsState()
+    val favoritesUiState by viewModel.favoritesUIState.collectAsState()
     val uiState by viewModel.uiState.collectAsState()
 
     NavigationWrapperUI(
-        notes = allNotesUiState.notesList,
+        notes = lookingForNotesUiState.notesList,
         onValueChange = viewModel::updateName,
         nameValue = uiState.partName,
         onNoteClick = viewModel::setSelectedNote,
-        favorites = emptyList()
+        selectedNote = uiState.selectedNote,
+        favorites = favoritesUiState.notesList
     )
 }
 
@@ -55,6 +57,7 @@ private fun NavigationWrapperUI(
     onValueChange: (String) -> Unit,
     nameValue: String,
     onNoteClick: (Note) -> Unit,
+    selectedNote: Note?,
     favorites: List<Note>,
 ){
     var selectedDestination : NoteDestination by remember {
@@ -86,16 +89,20 @@ private fun NavigationWrapperUI(
         layoutType = navLayoutType
     ) {
         when (selectedDestination) {
-            NoteDestination.Notes -> NotesAllDestination(
+            NoteDestination.Notes -> NotesDestination(
                 notes = notes,
                 onValueChange = onValueChange,
-                onNoteClick = onNoteClick
+                nameValue = nameValue,
+                onNoteClick = onNoteClick,
+                selectedNote = selectedNote
             )
             NoteDestination.Add -> AddDestination()
-            NoteDestination.Favorites -> FavoritesDestination(
-                favorites = favorites,
+            NoteDestination.Favorites -> NotesDestination(
+                notes = favorites,
                 onValueChange = onValueChange,
-                onNoteClick = onNoteClick
+                nameValue = nameValue,
+                onNoteClick = onNoteClick,
+                selectedNote = selectedNote
             )
         }
     }
@@ -103,10 +110,12 @@ private fun NavigationWrapperUI(
 
 @OptIn(ExperimentalMaterial3AdaptiveApi::class)
 @Composable
-fun NotesAllDestination(
+fun NotesDestination(
     notes: List<Note>,
     onValueChange: (String) -> Unit,
+    nameValue: String,
     onNoteClick: (Note) -> Unit,
+    selectedNote: Note?
 ){
     val navigator = rememberListDetailPaneScaffoldNavigator<Long>()
 
@@ -122,6 +131,7 @@ fun NotesAllDestination(
                        HomeScreen(
                            notes = notes,
                            onValueChange = onValueChange,
+                           nameValue = nameValue,
                            onNoteClick = {
                                onNoteClick(it)
                                navigator.navigateTo(ListDetailPaneScaffoldRole.Detail, it.id.toLong())
@@ -131,26 +141,19 @@ fun NotesAllDestination(
         },
         detailPane = {
             AnimatedPane {
+                if(selectedNote != null){
 
+                }
             }
         }
     )
 }
 
 
+@OptIn(ExperimentalMaterial3AdaptiveApi::class)
 @Composable
 fun AddDestination(
 
-){
-
-}
-
-@OptIn(ExperimentalMaterial3AdaptiveApi::class)
-@Composable
-fun FavoritesDestination(
-    favorites: List<Note>,
-    onValueChange: (String) -> Unit,
-    onNoteClick: (Note) -> Unit,
 ){
     val navigator = rememberListDetailPaneScaffoldNavigator<Long>()
 
@@ -160,4 +163,5 @@ fun FavoritesDestination(
 
 
 }
+
 

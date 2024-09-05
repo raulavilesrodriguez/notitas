@@ -19,13 +19,20 @@ interface NoteDao {
     suspend fun delete(note: Note)
     @Query("SELECT * FROM notes ORDER BY created DESC")
     fun getAllNotes(): Flow<List<Note>>
-    @Query("SELECT * FROM notes WHERE favorite = 1 ORDER BY created DESC")
-    fun getAllFavorites(): Flow<List<Note>>
+    @Query("SELECT *\n" +
+            "  FROM notes\n" +
+            " WHERE (tittle LIKE '%' || :partName || '%' OR \n" +
+            "        text LIKE '%' || :partName || '%') AND \n" +
+            "       favorite = 1\n" +
+            " ORDER BY created DESC")
+    fun getAllFavorites(partName: String): Flow<List<Note>>
 
     @Query("SELECT * FROM notes WHERE id = :id")
     fun getNote(id: Int): Flow<Note>
 
-    @Query("SELECT * FROM notes WHERE tittle LIKE '%' || :partName || '%' Or text LIKE '%' || :partName || '%'")
+    @Query("SELECT * FROM notes " +
+            "WHERE tittle LIKE '%' || :partName || '%' Or text LIKE '%' || :partName || '%' " +
+            "ORDER BY created DESC")
     fun lookingForNotes(partName: String): Flow<List<Note>>
 
 }
