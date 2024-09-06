@@ -19,7 +19,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -28,6 +27,9 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.empresa1.data.Note
 import com.example.empresa1.ui.AppViewModelProvider
 import com.example.empresa1.ui.HomeScreen
+import com.example.empresa1.ui.NoteDetailPane
+import com.example.empresa1.ui.NoteDetails
+import com.example.empresa1.ui.NoteUIState
 import com.example.empresa1.ui.NoteViewModel
 import com.example.empresa1.ui.navigation.NoteDestination
 
@@ -44,10 +46,10 @@ fun NoteApp(
     NavigationWrapperUI(
         notes = lookingForNotesUiState.notesList,
         onValueChange = viewModel::updateName,
-        nameValue = uiState.partName,
         onNoteClick = viewModel::setSelectedNote,
-        selectedNote = uiState.selectedNote,
-        favorites = favoritesUiState.notesList
+        favorites = favoritesUiState.notesList,
+        uiState = uiState,
+        onNoteChange = viewModel::updateNoteDetails
     )
 }
 
@@ -55,10 +57,10 @@ fun NoteApp(
 private fun NavigationWrapperUI(
     notes: List<Note>,
     onValueChange: (String) -> Unit,
-    nameValue: String,
     onNoteClick: (Note) -> Unit,
-    selectedNote: Note?,
     favorites: List<Note>,
+    uiState: NoteUIState,
+    onNoteChange: (NoteDetails) -> Unit
 ){
     var selectedDestination : NoteDestination by remember {
         mutableStateOf(NoteDestination.Notes)
@@ -92,17 +94,17 @@ private fun NavigationWrapperUI(
             NoteDestination.Notes -> NotesDestination(
                 notes = notes,
                 onValueChange = onValueChange,
-                nameValue = nameValue,
                 onNoteClick = onNoteClick,
-                selectedNote = selectedNote
+                uiState = uiState,
+                onNoteChange = onNoteChange
             )
             NoteDestination.Add -> AddDestination()
             NoteDestination.Favorites -> NotesDestination(
                 notes = favorites,
                 onValueChange = onValueChange,
-                nameValue = nameValue,
                 onNoteClick = onNoteClick,
-                selectedNote = selectedNote
+                uiState = uiState,
+                onNoteChange = onNoteChange
             )
         }
     }
@@ -113,9 +115,9 @@ private fun NavigationWrapperUI(
 fun NotesDestination(
     notes: List<Note>,
     onValueChange: (String) -> Unit,
-    nameValue: String,
     onNoteClick: (Note) -> Unit,
-    selectedNote: Note?
+    uiState: NoteUIState,
+    onNoteChange: (NoteDetails) -> Unit
 ){
     val navigator = rememberListDetailPaneScaffoldNavigator<Long>()
 
@@ -131,7 +133,7 @@ fun NotesDestination(
                        HomeScreen(
                            notes = notes,
                            onValueChange = onValueChange,
-                           nameValue = nameValue,
+                           nameValue = uiState.partName,
                            onNoteClick = {
                                onNoteClick(it)
                                navigator.navigateTo(ListDetailPaneScaffoldRole.Detail, it.id.toLong())
@@ -141,8 +143,11 @@ fun NotesDestination(
         },
         detailPane = {
             AnimatedPane {
-                if(selectedNote != null){
-
+                if(uiState.selectedNote != null){
+                    NoteDetailPane(
+                        uiState = uiState,
+                        onDetailChange = onNoteChange
+                    )
                 }
             }
         }

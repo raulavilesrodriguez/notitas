@@ -12,5 +12,5 @@ data class Note(
     val topic: String,
     val favorite: Boolean = false,
     val rating: Int = 0,
-    val created: String? = null
+    val created: String = ""
 )

@@ -13,6 +13,9 @@ import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 class NoteViewModel (
     private val noteRepository: NoteRepository
@@ -66,7 +69,31 @@ class NoteViewModel (
         _uiState.value = NoteUIState()
     }
 
+    /**
+     * to Add notes
+     */
+    private fun validateInput(uiState: NoteDetails = _uiState.value.noteDetails): Boolean {
+        return with(uiState) {
+            tittle.isNotBlank() && text.isNotBlank() && topic.isNotBlank()
+        }
+    }
 
+    fun updateNoteDetails(noteDetails: NoteDetails){
+        _uiState.update {
+            it.copy(noteDetails = noteDetails, isEntryValid = validateInput(noteDetails))
+        }
+    }
+
+    suspend fun saveNote(){
+        if(validateInput()){
+            noteRepository.insertNote(_uiState.value.noteDetails.toNote())
+        }
+    }
+
+    /**
+     *  to UPDATE Notes
+     */
+    
 
 }
 
@@ -80,5 +107,33 @@ data class AllNotesUIState(
 data class NoteUIState(
     val notesList: AllNotesUIState = AllNotesUIState(),
     val selectedNote : Note? = notesList.notesList.firstOrNull(),
-    val partName: String = ""
+    val partName: String = "",
+    val noteDetails : NoteDetails = NoteDetails(),
+    val isEntryValid: Boolean = false
+)
+
+data class NoteDetails(
+    val id: Int = 0,
+    val tittle: String = "",
+    val text: String = "",
+    val topic: String = "",
+    val favorite: Boolean = false,
+    val rating: Int = 0,
+    val created: String = getCurrentDateTime()
+)
+
+private fun getCurrentDateTime(): String {
+    val currentDate = Date()
+    val sdf= SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
+    return sdf.format(currentDate)
+}
+
+fun NoteDetails.toNote(): Note = Note(
+    id = id,
+    tittle = tittle,
+    text = text,
+    topic = topic,
+    favorite = favorite,
+    rating = rating,
+    created = created
 )

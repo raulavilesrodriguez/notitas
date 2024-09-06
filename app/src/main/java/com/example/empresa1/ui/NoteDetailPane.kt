@@ -26,9 +26,9 @@ import com.example.empresa1.ui.components.RatingInputRow
 
 @Composable
 fun NoteDetailPane(
-    note: Note,
+    uiState: NoteUIState,
     modifier: Modifier = Modifier,
-    onValueChange: () -> Unit = {}
+    onDetailChange: (NoteDetails) -> Unit
 ){
     Card(
         modifier = modifier
@@ -42,8 +42,10 @@ fun NoteDetailPane(
             verticalArrangement = Arrangement.spacedBy(dimensionResource(id = R.dimen.padding_medium))
         ) {
             OutlinedTextField(
-                value = note.tittle,
-                onValueChange = {onValueChange()},
+                value = uiState.selectedNote?.tittle ?: "",
+                onValueChange = {
+                    onDetailChange(uiState.noteDetails.copy(tittle = it))
+                                },
                 colors = OutlinedTextFieldDefaults.colors(
                     focusedContainerColor = MaterialTheme.colorScheme.secondaryContainer,
                     unfocusedContainerColor = MaterialTheme.colorScheme.secondaryContainer,
@@ -54,14 +56,16 @@ fun NoteDetailPane(
                 textStyle = MaterialTheme.typography.titleMedium
             )
             NoteSpinnerRow(
-                noteSpinnerPosition = findTopicIndex(note.topic),
+                noteSpinnerPosition = findTopicIndex(uiState.selectedNote?.topic ?: "Otros"),
                 onValueChange = {
-                    onValueChange()
+                    onDetailChange(uiState.noteDetails.copy(topic = Topics.entries[it].name))
                 }
             )
             TextField(
-                value = note.text,
-                onValueChange = {onValueChange()},
+                value = uiState.selectedNote?.text ?: "",
+                onValueChange = {
+                    onDetailChange(uiState.noteDetails.copy(text = it))
+                                },
                 colors = OutlinedTextFieldDefaults.colors(
                     focusedContainerColor = MaterialTheme.colorScheme.secondaryContainer,
                     unfocusedContainerColor = MaterialTheme.colorScheme.secondaryContainer,
@@ -72,9 +76,9 @@ fun NoteDetailPane(
                 textStyle = MaterialTheme.typography.bodyLarge
             )
             RatingInputRow(
-                rating = note.rating,
+                rating = uiState.selectedNote?.rating ?: 0,
                 onRatingChange = {rating ->
-                    onValueChange()
+                    onDetailChange(uiState.noteDetails.copy(rating = rating))
                 }
             )
         }
