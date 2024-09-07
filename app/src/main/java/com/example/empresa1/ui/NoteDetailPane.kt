@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -17,12 +18,15 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.dimensionResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import com.example.empresa1.R
 import com.example.empresa1.data.Note
 import com.example.empresa1.data.Topics
 import com.example.empresa1.ui.components.NoteSpinnerRow
 import com.example.empresa1.ui.components.RatingInputRow
+import com.example.empresa1.ui.theme.Empresa1Theme
 
 @Composable
 fun NoteDetailPane(
@@ -38,22 +42,13 @@ fun NoteDetailPane(
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer)
     ) {
         Column(
-            modifier = modifier,
+            modifier = modifier
+                .padding(dimensionResource(id = R.dimen.padding_small)),
             verticalArrangement = Arrangement.spacedBy(dimensionResource(id = R.dimen.padding_medium))
         ) {
-            OutlinedTextField(
-                value = uiState.selectedNote?.tittle ?: "",
-                onValueChange = {
-                    onDetailChange(uiState.noteDetails.copy(tittle = it))
-                                },
-                colors = OutlinedTextFieldDefaults.colors(
-                    focusedContainerColor = MaterialTheme.colorScheme.secondaryContainer,
-                    unfocusedContainerColor = MaterialTheme.colorScheme.secondaryContainer,
-                    disabledContainerColor = MaterialTheme.colorScheme.secondaryContainer,
-                ),
-                modifier = Modifier.fillMaxWidth(),
-                singleLine = true,
-                textStyle = MaterialTheme.typography.titleMedium
+            TittleInputRow(
+                uiState = uiState,
+                onDetailChange = onDetailChange
             )
             NoteSpinnerRow(
                 noteSpinnerPosition = findTopicIndex(uiState.selectedNote?.topic ?: "Otros"),
@@ -71,8 +66,10 @@ fun NoteDetailPane(
                     unfocusedContainerColor = MaterialTheme.colorScheme.secondaryContainer,
                     disabledContainerColor = MaterialTheme.colorScheme.secondaryContainer,
                 ),
-                modifier = Modifier.fillMaxWidth(),
-                singleLine = true,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .heightIn(dimensionResource(id = R.dimen.height_body_note)),
+                singleLine = false,
                 textStyle = MaterialTheme.typography.bodyLarge
             )
             RatingInputRow(
@@ -85,6 +82,29 @@ fun NoteDetailPane(
     }
 }
 
+@Composable
+fun TittleInputRow(
+    uiState: NoteUIState,
+    modifier: Modifier = Modifier,
+    onDetailChange: (NoteDetails) -> Unit
+){
+    InputRow(inputLabel = stringResource(id = R.string.tittle), modifier = modifier) {
+        OutlinedTextField(
+            value = uiState.selectedNote?.tittle ?: "",
+            onValueChange = {
+                onDetailChange(uiState.noteDetails.copy(tittle = it))
+            },
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedContainerColor = MaterialTheme.colorScheme.secondaryContainer,
+                unfocusedContainerColor = MaterialTheme.colorScheme.secondaryContainer,
+                disabledContainerColor = MaterialTheme.colorScheme.secondaryContainer,
+            ),
+            modifier = Modifier.fillMaxWidth(),
+            singleLine = true,
+            textStyle = MaterialTheme.typography.titleMedium
+        )
+    }
+}
 
 @Composable
 fun InputRow(
@@ -103,7 +123,7 @@ fun InputRow(
                 .weight(1f)
                 .padding(dimensionResource(id = R.dimen.padding_small))
         )
-        Box(modifier = Modifier.weight(2f)) {
+        Box(modifier = Modifier.weight(2.5f)) {
             content()
         }
 
@@ -113,4 +133,15 @@ fun InputRow(
 private fun findTopicIndex(topic: String): Int{
     val noteTopic = Topics.valueOf(topic)
     return Topics.entries.indexOf(noteTopic)
+}
+
+@Preview(showBackground = true)
+@Composable
+fun NoteDetailPanePreview(){
+    Empresa1Theme {
+        NoteDetailPane(
+            uiState = NoteUIState(),
+            onDetailChange = {}
+        )
+    }
 }

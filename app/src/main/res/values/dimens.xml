@@ -2,9 +2,11 @@
 <resources>
     <dimen name="padding_very_small">4dp</dimen>
     <dimen name="padding_small">8dp</dimen>
+    <dimen name="padding_12">12dp</dimen>
     <dimen name="padding_medium">16dp</dimen>
     <dimen name="padding_large">20dp</dimen>
     <dimen name="padding_extra_large">32dp</dimen>
     <dimen name="height_search">56dp</dimen>
     <dimen name="width_note">400dp</dimen>
+    <dimen name="height_body_note">120dp</dimen>
 </resources>
