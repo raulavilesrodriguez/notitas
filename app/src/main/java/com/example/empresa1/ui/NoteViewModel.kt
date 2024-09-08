@@ -84,6 +84,9 @@ class NoteViewModel (
         }
     }
 
+    /**
+     * To ADD Notes
+     */
     suspend fun saveNote(){
         if(validateInput()){
             noteRepository.insertNote(_uiState.value.noteDetails.toNote())
@@ -93,7 +96,18 @@ class NoteViewModel (
     /**
      *  to UPDATE Notes
      */
-    
+    suspend fun updateNote(){
+        if(validateInput(_uiState.value.noteDetails)){
+            noteRepository.updateNote(_uiState.value.noteDetails.toNote())
+        }
+    }
+
+    /**
+     * to DELETE Notes
+     */
+    suspend fun deleteNote(){
+        noteRepository.deleteNote(_uiState.value.noteDetails.toNote())
+    }
 
 }
 

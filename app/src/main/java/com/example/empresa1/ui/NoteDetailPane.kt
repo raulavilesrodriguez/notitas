@@ -1,14 +1,18 @@
 package com.example.empresa1.ui
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
@@ -17,7 +21,9 @@ import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.dimensionResource
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -30,6 +36,37 @@ import com.example.empresa1.ui.theme.Empresa1Theme
 
 @Composable
 fun NoteDetailPane(
+    uiState: NoteUIState,
+    modifier: Modifier = Modifier,
+    onDetailChange: (NoteDetails) -> Unit
+){
+    Column(
+        modifier = modifier.padding(dimensionResource(id = R.dimen.padding_small))
+    ) {
+        NoteInputForm(
+            uiState = uiState,
+            onDetailChange = onDetailChange
+        )
+        Spacer(modifier = Modifier.width(dimensionResource(id = R.dimen.padding_small)))
+        HorizontalDivider()
+        if(uiState.isEntryValid){
+            MessageInput(
+                message = R.string.correct_update,
+                avatar = R.drawable.happy,
+                color = Color.Green
+            )
+        } else {
+            MessageInput(
+                message = R.string.incorrect_update,
+                avatar = R.drawable.unhappy,
+                color = Color.Red
+            )
+        }
+    }
+}
+
+@Composable
+fun NoteInputForm(
     uiState: NoteUIState,
     modifier: Modifier = Modifier,
     onDetailChange: (NoteDetails) -> Unit
@@ -135,13 +172,55 @@ private fun findTopicIndex(topic: String): Int{
     return Topics.entries.indexOf(noteTopic)
 }
 
+@Composable
+private fun MessageInput(
+    message: Int,
+    avatar: Int,
+    color: Color,
+    modifier: Modifier = Modifier
+){
+    Card(
+        modifier = modifier,
+        elevation = CardDefaults.cardElevation(defaultElevation = dimensionResource(id = R.dimen.padding_2))
+    ){
+        Row(
+            modifier = modifier
+        ) {
+            Text(
+                text = stringResource(id = message),
+                color = color,
+                modifier = Modifier
+                    .padding(dimensionResource(id = R.dimen.padding_small))
+            )
+            Image(
+                painter = painterResource(id = avatar),
+                contentDescription = null,
+                modifier = Modifier
+                    .padding(dimensionResource(id = R.dimen.padding_small))
+            )
+        }
+    }
+}
+
 @Preview(showBackground = true)
 @Composable
-fun NoteDetailPanePreview(){
+private fun NoteDetailPanePreview(){
     Empresa1Theme {
-        NoteDetailPane(
+        NoteInputForm(
             uiState = NoteUIState(),
             onDetailChange = {}
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun MessageInputPreview(){
+    Empresa1Theme {
+        MessageInput(
+            message = R.string.incorrect_update,
+            avatar = R.drawable.unhappy,
+            color = Color.Red
         )
     }
 }

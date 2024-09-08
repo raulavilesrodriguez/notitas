@@ -17,4 +17,6 @@
     <string name="tab_notes">Notas</string>
     <string name="tab_add">Nueva Nota</string>
     <string name="tab_favorites">Favoritas</string>
+    <string name="correct_update">Datos Actualizados</string>
+    <string name="incorrect_update">Faltan Campos de Llenar</string>
 </resources>
