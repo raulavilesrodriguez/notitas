@@ -107,7 +107,8 @@ fun NoteInputForm(
                     .fillMaxWidth()
                     .heightIn(dimensionResource(id = R.dimen.height_body_note)),
                 singleLine = false,
-                textStyle = MaterialTheme.typography.bodyLarge
+                textStyle = MaterialTheme.typography.bodyLarge,
+                label = { Text(text = stringResource(id = R.string.label_note))}
             )
             RatingInputRow(
                 rating = uiState.selectedNote?.rating ?: 0,

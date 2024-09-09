@@ -25,6 +25,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.toSize
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.empresa1.data.Note
+import com.example.empresa1.ui.AddScreen
 import com.example.empresa1.ui.AppViewModelProvider
 import com.example.empresa1.ui.HomeScreen
 import com.example.empresa1.ui.NoteDetailPane
@@ -98,7 +99,9 @@ private fun NavigationWrapperUI(
                 uiState = uiState,
                 onNoteChange = onNoteChange
             )
-            NoteDestination.Add -> AddDestination()
+            NoteDestination.Add -> AddDestination(
+                onNoteChange = onNoteChange
+            )
             NoteDestination.Favorites -> NotesDestination(
                 notes = favorites,
                 onValueChange = onValueChange,
@@ -158,7 +161,8 @@ fun NotesDestination(
 @OptIn(ExperimentalMaterial3AdaptiveApi::class)
 @Composable
 fun AddDestination(
-
+    uiState: NoteUIState = NoteUIState(),
+    onNoteChange: (NoteDetails) -> Unit
 ){
     val navigator = rememberListDetailPaneScaffoldNavigator<Long>()
 
@@ -166,7 +170,21 @@ fun AddDestination(
         navigator.navigateBack()
     }
 
-
+    ListDetailPaneScaffold(
+        directive = navigator.scaffoldDirective,
+        value = navigator.scaffoldValue,
+        listPane = {
+                AnimatedPane {
+                    AddScreen(
+                        uiState = uiState,
+                        onDetailChange = onNoteChange,
+                        onCancel = { /*TODO*/ },
+                        onSubmit = {}
+                    )
+                }
+        },
+        detailPane = {}
+    )
 }
 
 
