@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="Theme.Empresa1" parent="android:ThemeOverlay.Material.Dark" >
+        <item name="android:textColor">@color/md_theme_onPrimary</item>
+        <item name="android:textAppearanceListItem">@color/md_theme_onPrimaryFixed</item>
+        <item name="android:isScrollContainer">@color/md_theme_scrim</item>
+        <item name="android:background">@color/md_theme_onSurfaceVariant</item>
+    </style>
+</resources>

@@ -18,6 +18,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
@@ -32,7 +33,10 @@ import com.example.empresa1.ui.NoteDetailPane
 import com.example.empresa1.ui.NoteDetails
 import com.example.empresa1.ui.NoteUIState
 import com.example.empresa1.ui.NoteViewModel
+import com.example.empresa1.ui.emptyScreens.ImageNoNotes
+import com.example.empresa1.ui.emptyScreens.NoNotes
 import com.example.empresa1.ui.navigation.NoteDestination
+import kotlinx.coroutines.launch
 
 private val WINDOW_WIDTH_LARGE = 1200.dp
 
@@ -50,7 +54,8 @@ fun NoteApp(
         onNoteClick = viewModel::setSelectedNote,
         favorites = favoritesUiState.notesList,
         uiState = uiState,
-        onNoteChange = viewModel::updateNoteDetails
+        onNoteChange = viewModel::updateNoteDetails,
+        viewModel = viewModel
     )
 }
 
@@ -61,7 +66,8 @@ private fun NavigationWrapperUI(
     onNoteClick: (Note) -> Unit,
     favorites: List<Note>,
     uiState: NoteUIState,
-    onNoteChange: (NoteDetails) -> Unit
+    onNoteChange: (NoteDetails) -> Unit,
+    viewModel: NoteViewModel
 ){
     var selectedDestination : NoteDestination by remember {
         mutableStateOf(NoteDestination.Notes)
@@ -100,7 +106,10 @@ private fun NavigationWrapperUI(
                 onNoteChange = onNoteChange
             )
             NoteDestination.Add -> AddDestination(
-                onNoteChange = onNoteChange
+                uiState = uiState,
+                onNoteChange = onNoteChange,
+                viewModel = viewModel,
+                onNavigateToNotes = {selectedDestination = NoteDestination.Notes}
             )
             NoteDestination.Favorites -> NotesDestination(
                 notes = favorites,
@@ -133,15 +142,19 @@ fun NotesDestination(
         value = navigator.scaffoldValue,
         listPane = {
                    AnimatedPane {
-                       HomeScreen(
-                           notes = notes,
-                           onValueChange = onValueChange,
-                           nameValue = uiState.partName,
-                           onNoteClick = {
-                               onNoteClick(it)
-                               navigator.navigateTo(ListDetailPaneScaffoldRole.Detail, it.id.toLong())
-                           }
-                       )
+                       if(notes.isNotEmpty()){
+                           HomeScreen(
+                               notes = notes,
+                               onValueChange = onValueChange,
+                               nameValue = uiState.partName,
+                               onNoteClick = {
+                                   onNoteClick(it)
+                                   navigator.navigateTo(ListDetailPaneScaffoldRole.Detail, it.id.toLong())
+                               }
+                           )
+                       } else {
+                           NoNotes()
+                       }
                    }
         },
         detailPane = {
@@ -151,6 +164,8 @@ fun NotesDestination(
                         uiState = uiState,
                         onDetailChange = onNoteChange
                     )
+                } else {
+                    ImageNoNotes()
                 }
             }
         }
@@ -161,10 +176,13 @@ fun NotesDestination(
 @OptIn(ExperimentalMaterial3AdaptiveApi::class)
 @Composable
 fun AddDestination(
-    uiState: NoteUIState = NoteUIState(),
-    onNoteChange: (NoteDetails) -> Unit
+    uiState: NoteUIState,
+    onNoteChange: (NoteDetails) -> Unit,
+    viewModel: NoteViewModel,
+    onNavigateToNotes: () -> Unit
 ){
     val navigator = rememberListDetailPaneScaffoldNavigator<Long>()
+    val coroutineScope = rememberCoroutineScope()
 
     BackHandler(navigator.canNavigateBack()) {
         navigator.navigateBack()
@@ -178,8 +196,18 @@ fun AddDestination(
                     AddScreen(
                         uiState = uiState,
                         onDetailChange = onNoteChange,
-                        onCancel = { /*TODO*/ },
-                        onSubmit = {}
+                        onCancel = {
+                                   coroutineScope.launch {
+                                       viewModel.resetInput()
+                                   }
+                            onNavigateToNotes()
+                        },
+                        onSubmit = {
+                            coroutineScope.launch {
+                                viewModel.saveNote()
+                            }
+                            onNavigateToNotes()
+                        }
                     )
                 }
         },

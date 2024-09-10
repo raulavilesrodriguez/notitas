@@ -29,12 +29,15 @@ fun NoteSpinnerRow(
     onValueChange: (Int) -> Unit,
     modifier: Modifier = Modifier
 ){
+
+
     val noteTopicArray = Topics.entries.map {
         stringResource(id = it.label)
     }
     InputRow(inputLabel = stringResource(id = R.string.Topics), modifier = modifier) {
         AndroidView(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth(),
             factory = {context ->
                 Spinner(context).apply {
                     adapter =

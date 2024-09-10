@@ -1,5 +1,6 @@
 package com.example.empresa1.data
 
+import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 
@@ -12,5 +13,6 @@ data class Note(
     val topic: String,
     val favorite: Boolean = false,
     val rating: Int = 0,
-    val created: String = ""
+    @ColumnInfo(defaultValue = "CURRENT_TIMESTAMP")
+    val created: String? = ""
 )

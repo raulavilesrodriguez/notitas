@@ -15,8 +15,7 @@ abstract class NoteDatabase: RoomDatabase() {
 
         fun getDatabase(context: Context): NoteDatabase {
             return Instance ?: synchronized(this){
-                Room.databaseBuilder(context, NoteDatabase::class.java, "app_database")
-                    .createFromAsset("database/notitas.db")
+                Room.databaseBuilder(context, NoteDatabase::class.java, "note_database")
                     .build()
                     .also { Instance = it }
             }

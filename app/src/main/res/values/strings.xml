@@ -13,7 +13,8 @@
     <string name="personal">Personales</string>
     <string name="shopping">Compras</string>
     <string name="others">Otros</string>
-    <string name="no_notes">No hay notitas</string>
+    <string name="no_notes">No hay notas</string>
+    <string name="no_details">No hay detalles</string>
     <string name="tab_notes">Notas</string>
     <string name="tab_add">Nueva Nota</string>
     <string name="tab_favorites">Favoritas</string>
