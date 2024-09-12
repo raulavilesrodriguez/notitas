@@ -1,7 +1,13 @@
 package com.example.empresa1
 
 import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.calculateEndPadding
+import androidx.compose.foundation.layout.calculateStartPadding
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Icon
+import androidx.compose.material3.SearchBar
 import androidx.compose.material3.Text
 import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
 import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
@@ -20,7 +26,11 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.toSize
@@ -29,10 +39,13 @@ import com.example.empresa1.data.Note
 import com.example.empresa1.ui.AddScreen
 import com.example.empresa1.ui.AppViewModelProvider
 import com.example.empresa1.ui.HomeScreen
+import com.example.empresa1.ui.NameUIState
 import com.example.empresa1.ui.NoteDetailPane
 import com.example.empresa1.ui.NoteDetails
 import com.example.empresa1.ui.NoteUIState
 import com.example.empresa1.ui.NoteViewModel
+import com.example.empresa1.ui.PaneUIState
+import com.example.empresa1.ui.SearchBar
 import com.example.empresa1.ui.emptyScreens.ImageNoNotes
 import com.example.empresa1.ui.emptyScreens.NoNotes
 import com.example.empresa1.ui.navigation.NoteDestination
@@ -47,6 +60,8 @@ fun NoteApp(
     val lookingForNotesUiState by viewModel.lookingForNotesUiState.collectAsState()
     val favoritesUiState by viewModel.favoritesUIState.collectAsState()
     val uiState by viewModel.uiState.collectAsState()
+    val nameUiState by viewModel.nameUiState.collectAsState()
+    val selectNoteUIState by viewModel.selectNoteUIState.collectAsState()
 
     NavigationWrapperUI(
         notes = lookingForNotesUiState.notesList,
@@ -55,7 +70,9 @@ fun NoteApp(
         favorites = favoritesUiState.notesList,
         uiState = uiState,
         onNoteChange = viewModel::updateNoteDetails,
-        viewModel = viewModel
+        viewModel = viewModel,
+        nameUIState = nameUiState,
+        selectNoteUIState = selectNoteUIState
     )
 }
 
@@ -67,7 +84,9 @@ private fun NavigationWrapperUI(
     favorites: List<Note>,
     uiState: NoteUIState,
     onNoteChange: (NoteDetails) -> Unit,
-    viewModel: NoteViewModel
+    viewModel: NoteViewModel,
+    nameUIState: NameUIState,
+    selectNoteUIState: PaneUIState
 ){
     var selectedDestination : NoteDestination by remember {
         mutableStateOf(NoteDestination.Notes)
@@ -103,7 +122,9 @@ private fun NavigationWrapperUI(
                 onValueChange = onValueChange,
                 onNoteClick = onNoteClick,
                 uiState = uiState,
-                onNoteChange = onNoteChange
+                onNoteChange = onNoteChange,
+                nameUIState = nameUIState,
+                selectNoteUIState = selectNoteUIState
             )
             NoteDestination.Add -> AddDestination(
                 uiState = uiState,
@@ -116,7 +137,9 @@ private fun NavigationWrapperUI(
                 onValueChange = onValueChange,
                 onNoteClick = onNoteClick,
                 uiState = uiState,
-                onNoteChange = onNoteChange
+                onNoteChange = onNoteChange,
+                nameUIState = nameUIState,
+                selectNoteUIState = selectNoteUIState
             )
         }
     }
@@ -129,7 +152,9 @@ fun NotesDestination(
     onValueChange: (String) -> Unit,
     onNoteClick: (Note) -> Unit,
     uiState: NoteUIState,
-    onNoteChange: (NoteDetails) -> Unit
+    onNoteChange: (NoteDetails) -> Unit,
+    nameUIState: NameUIState,
+    selectNoteUIState: PaneUIState
 ){
     val navigator = rememberListDetailPaneScaffoldNavigator<Long>()
 
@@ -142,24 +167,34 @@ fun NotesDestination(
         value = navigator.scaffoldValue,
         listPane = {
                    AnimatedPane {
-                       if(notes.isNotEmpty()){
-                           HomeScreen(
-                               notes = notes,
+                       Column(
+                           horizontalAlignment = Alignment.CenterHorizontally
+                       ) {
+                           SearchBar(
+                               value = nameUIState.partName,
                                onValueChange = onValueChange,
-                               nameValue = uiState.partName,
-                               onNoteClick = {
-                                   onNoteClick(it)
-                                   navigator.navigateTo(ListDetailPaneScaffoldRole.Detail, it.id.toLong())
-                               }
+                               modifier = Modifier
+                                   .padding(
+                                       dimensionResource(id = R.dimen.padding_medium)
+                                   )
                            )
-                       } else {
-                           NoNotes()
+                           if(notes.isNotEmpty()){
+                               HomeScreen(
+                                   notes = notes,
+                                   onNoteClick = {
+                                       onNoteClick(it)
+                                       navigator.navigateTo(ListDetailPaneScaffoldRole.Detail, it.id.toLong())
+                                   }
+                               )
+                           } else {
+                               NoNotes()
+                           }   
                        }
                    }
         },
         detailPane = {
             AnimatedPane {
-                if(uiState.selectedNote != null){
+                if(selectNoteUIState.selectedNote != null){
                     NoteDetailPane(
                         uiState = uiState,
                         onDetailChange = onNoteChange

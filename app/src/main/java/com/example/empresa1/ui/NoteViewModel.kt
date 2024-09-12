@@ -21,30 +21,42 @@ class NoteViewModel (
     private val noteRepository: NoteRepository
 ) : ViewModel() {
 
-    // UI state exposed to the UI
+    // UI state exposed to the data of the NOTE in UI
     private val _uiState = MutableStateFlow(NoteUIState())
     val uiState: StateFlow<NoteUIState> = _uiState.asStateFlow()
+
+    // UI state to SEARCH NOTES
+    private val _nameUiState = MutableStateFlow(NameUIState())
+    val nameUiState: StateFlow<NameUIState> = _nameUiState.asStateFlow()
+
+    // UI state of SELECTED NOTE
+    private val _selectedNoteUI = MutableStateFlow(PaneUIState())
+    val selectNoteUIState: StateFlow<PaneUIState> = _selectedNoteUI.asStateFlow()
 
     companion object {
         private const val TIMEOUT_MILLS = 5_000L
     }
 
     fun setSelectedNote(note: Note){
-        _uiState.update {
+        _selectedNoteUI.update {
             it.copy(selectedNote = note)
         }
+        _uiState.update {
+            it.copy(noteDetails = note.toNoteDetails(), isEntryValid = true)
+        }
+
     }
 
     fun updateName(name: String){
-        _uiState.update {
+        _nameUiState.update {
             it.copy(partName = name)
         }
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
     val lookingForNotesUiState : StateFlow<AllNotesUIState> =
-        _uiState.flatMapLatest { uiState ->
-            noteRepository.lookingForNotesStream(uiState.partName).map {
+        _nameUiState.flatMapLatest { nameUiState ->
+            noteRepository.lookingForNotesStream(nameUiState.partName).map {
                 AllNotesUIState(it)
             }
         }.stateIn(
@@ -55,7 +67,7 @@ class NoteViewModel (
 
     @OptIn(ExperimentalCoroutinesApi::class)
     val favoritesUIState: StateFlow<AllNotesUIState> =
-        _uiState.flatMapLatest { uiState ->
+        _nameUiState.flatMapLatest { uiState ->
             noteRepository.getAllFavoritesStream(uiState.partName).map {
                 AllNotesUIState(it)
             }
@@ -118,10 +130,16 @@ data class AllNotesUIState(
     val notesList : List<Note> = emptyList(),
 )
 
-data class NoteUIState(
+data class PaneUIState(
     val notesList: AllNotesUIState = AllNotesUIState(),
-    val selectedNote : Note? = notesList.notesList.firstOrNull(),
+    val selectedNote : Note? = null,
+)
+
+data class NameUIState(
     val partName: String = "",
+)
+
+data class NoteUIState(
     val noteDetails : NoteDetails = NoteDetails(),
     val isEntryValid: Boolean = false
 )
@@ -130,7 +148,7 @@ data class NoteDetails(
     val id: Int = 0,
     val tittle: String = "",
     val text: String = "",
-    val topic: String = "",
+    val topic: String = "Otros",
     val favorite: Boolean = false,
     val rating: Int = 0,
     val created: String = getCurrentDateTime()
@@ -150,4 +168,14 @@ fun NoteDetails.toNote(): Note = Note(
     favorite = favorite,
     rating = rating,
     created = created
+)
+
+fun Note.toNoteDetails(): NoteDetails = NoteDetails(
+    id = id,
+    tittle = tittle,
+    text = text,
+    topic = topic,
+    favorite = favorite,
+    rating = rating,
+    created = ""
 )

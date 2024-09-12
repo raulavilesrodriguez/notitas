@@ -28,7 +28,7 @@ fun AddScreen(
         modifier = modifier
     ) {
         NoteInputForm(
-            uiState = uiState,
+            noteDetails = uiState.noteDetails,
             onDetailChange = onDetailChange
         )
         ButtonRow(

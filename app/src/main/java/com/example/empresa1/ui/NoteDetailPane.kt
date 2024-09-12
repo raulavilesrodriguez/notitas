@@ -44,10 +44,12 @@ fun NoteDetailPane(
         modifier = modifier.padding(dimensionResource(id = R.dimen.padding_small))
     ) {
         NoteInputForm(
-            uiState = uiState,
+            noteDetails = uiState.noteDetails,
             onDetailChange = onDetailChange
         )
-        Spacer(modifier = Modifier.width(dimensionResource(id = R.dimen.padding_small)))
+        Spacer(modifier = Modifier
+            .padding(dimensionResource(id = R.dimen.padding_medium))
+            .width(dimensionResource(id = R.dimen.padding_small)))
         HorizontalDivider()
         if(uiState.isEntryValid){
             MessageInput(
@@ -67,7 +69,7 @@ fun NoteDetailPane(
 
 @Composable
 fun NoteInputForm(
-    uiState: NoteUIState,
+    noteDetails: NoteDetails,
     modifier: Modifier = Modifier,
     onDetailChange: (NoteDetails) -> Unit
 ){
@@ -84,19 +86,19 @@ fun NoteInputForm(
             verticalArrangement = Arrangement.spacedBy(dimensionResource(id = R.dimen.padding_medium))
         ) {
             TittleInputRow(
-                uiState = uiState,
+                noteDetails = noteDetails,
                 onDetailChange = onDetailChange
             )
             NoteSpinnerRow(
-                noteSpinnerPosition = findTopicIndex(uiState.selectedNote?.topic ?: "Otros"),
+                noteSpinnerPosition = findTopicIndex(noteDetails.topic),
                 onValueChange = {
-                    onDetailChange(uiState.noteDetails.copy(topic = Topics.entries[it].name))
+                    onDetailChange(noteDetails.copy(topic = Topics.entries[it].name))
                 }
             )
             TextField(
-                value = uiState.selectedNote?.text ?: "",
+                value = noteDetails.text,
                 onValueChange = {
-                    onDetailChange(uiState.noteDetails.copy(text = it))
+                    onDetailChange(noteDetails.copy(text = it))
                                 },
                 colors = OutlinedTextFieldDefaults.colors(
                     focusedContainerColor = MaterialTheme.colorScheme.secondaryContainer,
@@ -111,9 +113,9 @@ fun NoteInputForm(
                 label = { Text(text = stringResource(id = R.string.label_note))}
             )
             RatingInputRow(
-                rating = uiState.selectedNote?.rating ?: 0,
+                rating = noteDetails.rating,
                 onRatingChange = {rating ->
-                    onDetailChange(uiState.noteDetails.copy(rating = rating))
+                    onDetailChange(noteDetails.copy(rating = rating))
                 }
             )
         }
@@ -122,15 +124,15 @@ fun NoteInputForm(
 
 @Composable
 fun TittleInputRow(
-    uiState: NoteUIState,
+    noteDetails: NoteDetails,
     modifier: Modifier = Modifier,
     onDetailChange: (NoteDetails) -> Unit
 ){
     InputRow(inputLabel = stringResource(id = R.string.tittle), modifier = modifier) {
         OutlinedTextField(
-            value = uiState.selectedNote?.tittle ?: "",
+            value = noteDetails.tittle,
             onValueChange = {
-                onDetailChange(uiState.noteDetails.copy(tittle = it))
+                onDetailChange(noteDetails.copy(tittle = it))
             },
             colors = OutlinedTextFieldDefaults.colors(
                 focusedContainerColor = MaterialTheme.colorScheme.secondaryContainer,
@@ -208,7 +210,7 @@ private fun MessageInput(
 private fun NoteDetailPanePreview(){
     Empresa1Theme {
         NoteInputForm(
-            uiState = NoteUIState(),
+            noteDetails = NoteDetails(),
             onDetailChange = {}
         )
     }
