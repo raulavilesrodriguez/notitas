@@ -9,6 +9,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
@@ -39,14 +40,10 @@ class NoteViewModel (
     }
 
     fun setSelectedNote(note: Note){
-        viewModelScope.launch {
-            noteRepository.getAllNotesStream()
-                .collect{
-
-                }
-        }
         _selectedNoteUI.update {
-            it.copy(selectedNote = note)
+            it.copy(
+                selectedNote = note
+            )
         }
         _uiState.update {
             it.copy(noteDetails = note.toNoteDetails(), isEntryValid = true)
@@ -60,15 +57,16 @@ class NoteViewModel (
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    val lookingForNotesUiState : StateFlow<AllNotesUIState> =
+    val lookingForNotesUiState : StateFlow<PaneUIState> =
         _nameUiState.flatMapLatest { nameUiState ->
             noteRepository.lookingForNotesStream(nameUiState.partName).map {
-                AllNotesUIState(it)
+                val currentSelected = _selectedNoteUI.value.selectedNote
+                PaneUIState(notesList = it, selectedNote = currentSelected ?: it.firstOrNull())
             }
         }.stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(TIMEOUT_MILLS),
-            initialValue = AllNotesUIState()
+            initialValue = PaneUIState()
         )
 
     /**
@@ -107,19 +105,21 @@ class NoteViewModel (
 /**
  * Ui State for All Notes Destination
  */
-data class AllNotesUIState(
-    val notesList : List<Note> = emptyList(),
-)
-
 data class PaneUIState(
-    val notesList: AllNotesUIState = AllNotesUIState(),
+    val notesList: List<Note> = emptyList(),
     val selectedNote : Note? = null,
 )
 
+/**
+ * Data class to search notes
+ */
 data class NameUIState(
     val partName: String = "",
 )
 
+/**
+ * Data class to show note details
+ */
 data class NoteUIState(
     val noteDetails : NoteDetails = NoteDetails(),
     val isEntryValid: Boolean = false

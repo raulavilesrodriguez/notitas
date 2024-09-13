@@ -50,15 +50,16 @@ class FavoriteViewModel (
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    val favoritesUIState: StateFlow<AllNotesUIState> =
+    val favoritesUIState: StateFlow<PaneUIState> =
         _nameUiState.flatMapLatest { uiState ->
             noteRepository.getAllFavoritesStream(uiState.partName).map {
-                AllNotesUIState(it)
+                val currentSelected = _selectedNoteUI.value.selectedNote
+                PaneUIState(notesList = it, selectedNote = currentSelected ?: it.firstOrNull())
             }
         }.stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(FavoriteViewModel.TIMEOUT_MILLS),
-            initialValue = AllNotesUIState()
+            initialValue = PaneUIState()
         )
 
     /**

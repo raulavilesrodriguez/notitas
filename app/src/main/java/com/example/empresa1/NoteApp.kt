@@ -34,6 +34,7 @@ import com.example.empresa1.data.Note
 import com.example.empresa1.ui.AddScreen
 import com.example.empresa1.ui.AppViewModelProvider
 import com.example.empresa1.ui.EntryViewModel
+import com.example.empresa1.ui.FavoriteViewModel
 import com.example.empresa1.ui.HomeScreen
 import com.example.empresa1.ui.NameUIState
 import com.example.empresa1.ui.NoteDetailPane
@@ -52,10 +53,11 @@ private val WINDOW_WIDTH_LARGE = 1200.dp
 @Composable
 fun NoteApp(
     viewModel: NoteViewModel = viewModel(factory = AppViewModelProvider.Factory),
+    favoriteViewModel: FavoriteViewModel = viewModel(factory = AppViewModelProvider.Factory),
     entryViewModel: EntryViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ){
     val lookingForNotesUiState by viewModel.lookingForNotesUiState.collectAsState()
-    val favoritesUiState by viewModel.favoritesUIState.collectAsState()
+    val favoritesUiState by favoriteViewModel.favoritesUIState.collectAsState()
     val uiState by viewModel.uiState.collectAsState()
     val nameUiState by viewModel.nameUiState.collectAsState()
     val selectNoteUIState by viewModel.selectNoteUIState.collectAsState()
