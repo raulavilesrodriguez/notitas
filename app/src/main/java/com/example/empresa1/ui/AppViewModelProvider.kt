@@ -14,6 +14,16 @@ object AppViewModelProvider {
                 noteApplication().container.noteRepository
             )
         }
+        initializer {
+            EntryViewModel(
+                noteApplication().container.noteRepository
+            )
+        }
+        initializer {
+            FavoriteViewModel(
+                noteApplication().container.noteRepository
+            )
+        }
     }
 }
 

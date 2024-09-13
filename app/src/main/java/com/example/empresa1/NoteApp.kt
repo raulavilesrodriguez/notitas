@@ -1,13 +1,9 @@
 package com.example.empresa1
 
 import androidx.activity.compose.BackHandler
-import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.calculateEndPadding
-import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Icon
-import androidx.compose.material3.SearchBar
 import androidx.compose.material3.Text
 import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
 import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
@@ -29,7 +25,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -38,6 +33,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.empresa1.data.Note
 import com.example.empresa1.ui.AddScreen
 import com.example.empresa1.ui.AppViewModelProvider
+import com.example.empresa1.ui.EntryViewModel
 import com.example.empresa1.ui.HomeScreen
 import com.example.empresa1.ui.NameUIState
 import com.example.empresa1.ui.NoteDetailPane
@@ -55,13 +51,16 @@ private val WINDOW_WIDTH_LARGE = 1200.dp
 
 @Composable
 fun NoteApp(
-    viewModel: NoteViewModel = viewModel(factory = AppViewModelProvider.Factory)
+    viewModel: NoteViewModel = viewModel(factory = AppViewModelProvider.Factory),
+    entryViewModel: EntryViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ){
     val lookingForNotesUiState by viewModel.lookingForNotesUiState.collectAsState()
     val favoritesUiState by viewModel.favoritesUIState.collectAsState()
     val uiState by viewModel.uiState.collectAsState()
     val nameUiState by viewModel.nameUiState.collectAsState()
     val selectNoteUIState by viewModel.selectNoteUIState.collectAsState()
+
+    val entryUIState by entryViewModel.uiState.collectAsState()
 
     NavigationWrapperUI(
         notes = lookingForNotesUiState.notesList,
@@ -70,9 +69,11 @@ fun NoteApp(
         favorites = favoritesUiState.notesList,
         uiState = uiState,
         onNoteChange = viewModel::updateNoteDetails,
-        viewModel = viewModel,
+        onNoteAdd = entryViewModel::updateNoteDetails,
+        entryViewModel = entryViewModel,
         nameUIState = nameUiState,
-        selectNoteUIState = selectNoteUIState
+        selectNoteUIState = selectNoteUIState,
+        entryUIState = entryUIState
     )
 }
 
@@ -84,9 +85,11 @@ private fun NavigationWrapperUI(
     favorites: List<Note>,
     uiState: NoteUIState,
     onNoteChange: (NoteDetails) -> Unit,
-    viewModel: NoteViewModel,
+    onNoteAdd: (NoteDetails) -> Unit,
+    entryViewModel: EntryViewModel,
     nameUIState: NameUIState,
-    selectNoteUIState: PaneUIState
+    selectNoteUIState: PaneUIState,
+    entryUIState: NoteUIState
 ){
     var selectedDestination : NoteDestination by remember {
         mutableStateOf(NoteDestination.Notes)
@@ -127,9 +130,9 @@ private fun NavigationWrapperUI(
                 selectNoteUIState = selectNoteUIState
             )
             NoteDestination.Add -> AddDestination(
-                uiState = uiState,
-                onNoteChange = onNoteChange,
-                viewModel = viewModel,
+                uiState = entryUIState,
+                onNoteAdd = onNoteAdd,
+                entryViewModel = entryViewModel,
                 onNavigateToNotes = {selectedDestination = NoteDestination.Notes}
             )
             NoteDestination.Favorites -> NotesDestination(
@@ -212,8 +215,8 @@ fun NotesDestination(
 @Composable
 fun AddDestination(
     uiState: NoteUIState,
-    onNoteChange: (NoteDetails) -> Unit,
-    viewModel: NoteViewModel,
+    onNoteAdd: (NoteDetails) -> Unit,
+    entryViewModel: EntryViewModel,
     onNavigateToNotes: () -> Unit
 ){
     val navigator = rememberListDetailPaneScaffoldNavigator<Long>()
@@ -230,16 +233,16 @@ fun AddDestination(
                 AnimatedPane {
                     AddScreen(
                         uiState = uiState,
-                        onDetailChange = onNoteChange,
+                        onDetailChange = onNoteAdd,
                         onCancel = {
                                    coroutineScope.launch {
-                                       viewModel.resetInput()
+                                       entryViewModel.resetInput()
                                    }
                             onNavigateToNotes()
                         },
                         onSubmit = {
                             coroutineScope.launch {
-                                viewModel.saveNote()
+                                entryViewModel.saveNote()
                             }
                             onNavigateToNotes()
                         }

@@ -13,12 +13,8 @@ import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.launch
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
 
-class NoteViewModel (
+class FavoriteViewModel (
     private val noteRepository: NoteRepository
 ) : ViewModel() {
 
@@ -39,12 +35,6 @@ class NoteViewModel (
     }
 
     fun setSelectedNote(note: Note){
-        viewModelScope.launch {
-            noteRepository.getAllNotesStream()
-                .collect{
-
-                }
-        }
         _selectedNoteUI.update {
             it.copy(selectedNote = note)
         }
@@ -60,14 +50,14 @@ class NoteViewModel (
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    val lookingForNotesUiState : StateFlow<AllNotesUIState> =
-        _nameUiState.flatMapLatest { nameUiState ->
-            noteRepository.lookingForNotesStream(nameUiState.partName).map {
+    val favoritesUIState: StateFlow<AllNotesUIState> =
+        _nameUiState.flatMapLatest { uiState ->
+            noteRepository.getAllFavoritesStream(uiState.partName).map {
                 AllNotesUIState(it)
             }
         }.stateIn(
             scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(TIMEOUT_MILLS),
+            started = SharingStarted.WhileSubscribed(FavoriteViewModel.TIMEOUT_MILLS),
             initialValue = AllNotesUIState()
         )
 
@@ -101,62 +91,4 @@ class NoteViewModel (
     suspend fun deleteNote(){
         noteRepository.deleteNote(_uiState.value.noteDetails.toNote())
     }
-
 }
-
-/**
- * Ui State for All Notes Destination
- */
-data class AllNotesUIState(
-    val notesList : List<Note> = emptyList(),
-)
-
-data class PaneUIState(
-    val notesList: AllNotesUIState = AllNotesUIState(),
-    val selectedNote : Note? = null,
-)
-
-data class NameUIState(
-    val partName: String = "",
-)
-
-data class NoteUIState(
-    val noteDetails : NoteDetails = NoteDetails(),
-    val isEntryValid: Boolean = false
-)
-
-data class NoteDetails(
-    val id: Int = 0,
-    val tittle: String = "",
-    val text: String = "",
-    val topic: String = "Otros",
-    val favorite: Boolean = false,
-    val rating: Int = 0,
-    val created: String = getCurrentDateTime()
-)
-
-private fun getCurrentDateTime(): String {
-    val currentDate = Date()
-    val sdf= SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
-    return sdf.format(currentDate)
-}
-
-fun NoteDetails.toNote(): Note = Note(
-    id = id,
-    tittle = tittle,
-    text = text,
-    topic = topic,
-    favorite = favorite,
-    rating = rating,
-    created = created
-)
-
-fun Note.toNoteDetails(): NoteDetails = NoteDetails(
-    id = id,
-    tittle = tittle,
-    text = text,
-    topic = topic,
-    favorite = favorite,
-    rating = rating,
-    created = created?: ""
-)
