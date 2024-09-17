@@ -28,7 +28,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.empresa1.R
-import com.example.empresa1.data.Note
 import com.example.empresa1.data.Topics
 import com.example.empresa1.ui.components.NoteSpinnerRow
 import com.example.empresa1.ui.components.RatingInputRow
@@ -44,7 +43,7 @@ fun NoteDetailPane(
         modifier = modifier.padding(dimensionResource(id = R.dimen.padding_small))
     ) {
         NoteInputForm(
-            noteDetails = uiState.noteDetails,
+            noteDetails = uiState.selectedNote?.toNoteDetails()?:NoteDetails(),
             onDetailChange = onDetailChange
         )
         HorizontalDivider()
@@ -115,7 +114,6 @@ fun NoteInputForm(
                     .heightIn(dimensionResource(id = R.dimen.height_body_note)),
                 singleLine = false,
                 textStyle = MaterialTheme.typography.bodyLarge,
-                label = { Text(text = stringResource(id = R.string.label_note))}
             )
             RatingInputRow(
                 rating = noteDetails.rating,

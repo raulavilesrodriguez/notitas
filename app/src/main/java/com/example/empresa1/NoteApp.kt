@@ -30,6 +30,7 @@ import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.toSize
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.empresa1.data.Note
 import com.example.empresa1.ui.AddScreen
@@ -46,6 +47,7 @@ import com.example.empresa1.ui.SearchBar
 import com.example.empresa1.ui.emptyScreens.ImageNoNotes
 import com.example.empresa1.ui.emptyScreens.NoNotes
 import com.example.empresa1.ui.navigation.NoteDestination
+import com.example.empresa1.ui.toNoteDetails
 import kotlinx.coroutines.launch
 
 private val WINDOW_WIDTH_LARGE = 1200.dp
@@ -56,11 +58,11 @@ fun NoteApp(
     favoriteViewModel: FavoriteViewModel = viewModel(factory = AppViewModelProvider.Factory),
     entryViewModel: EntryViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ){
-    val uiState by viewModel.uiState.collectAsState()
-    val nameUiState by viewModel.nameUiState.collectAsState()
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val nameUiState by viewModel.nameUiState.collectAsStateWithLifecycle()
 
-    val uiStateFavorite by favoriteViewModel.uiState.collectAsState()
-    val nameUiStateFavorite by favoriteViewModel.nameUiState.collectAsState()
+    val uiStateFavorite by favoriteViewModel.uiState.collectAsStateWithLifecycle()
+    val nameUiStateFavorite by favoriteViewModel.nameUiState.collectAsStateWithLifecycle()
 
     val entryUIState by entryViewModel.uiState.collectAsState()
 
@@ -160,7 +162,7 @@ fun NotesDestination(
     nameUIState: NameUIState,
 ){
     val navigator = rememberListDetailPaneScaffoldNavigator<Long>()
-    Log.d("SelectedViewModel", "SELECTED hi bro: ${uiState.selectedNote}")
+    Log.d("SelectedViewModel", "SELECTED hi bro: ${uiState.selectedNote?.toNoteDetails()}")
     BackHandler(navigator.canNavigateBack()) {
         navigator.navigateBack()
     }

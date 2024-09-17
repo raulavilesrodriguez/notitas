@@ -1,5 +1,6 @@
 package com.example.empresa1.ui
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.empresa1.data.Note
@@ -31,7 +32,6 @@ class FavoriteViewModel (
         _uiState.update {
             it.copy(
                 selectedNote = note,
-                noteDetails = note.toNoteDetails(),
                 isEntryValid = true
             )
         }
@@ -48,18 +48,14 @@ class FavoriteViewModel (
         observeNotes()
     }
 
-    @OptIn(ExperimentalCoroutinesApi::class)
     private fun observeNotes(){
         viewModelScope.launch {
-            _nameUiState.flatMapLatest { nameUiState ->
-                noteRepository.getAllFavoritesStream(nameUiState.partName).map{
-                    _uiState.value = NoteUIState(
-                        notesList = it,
-                        selectedNote = it.firstOrNull(),
-                        noteDetails = it.firstOrNull()?.toNoteDetails() ?: NoteDetails(),
-                        isEntryValid = validateInput(it.firstOrNull()?.toNoteDetails() ?: NoteDetails())
-                    )
-                }
+            noteRepository.getAllFavoritesStream(_nameUiState.value.partName).collect{
+                _uiState.value = NoteUIState(
+                    notesList = it,
+                    selectedNote = it.firstOrNull(),
+                    isEntryValid = validateInput(it.firstOrNull()?.toNoteDetails() ?: NoteDetails())
+                )
             }
         }
     }

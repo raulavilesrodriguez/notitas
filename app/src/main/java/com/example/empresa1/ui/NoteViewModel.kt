@@ -36,7 +36,6 @@ class NoteViewModel (
         _uiState.update {
             it.copy(
                 selectedNote = note,
-                noteDetails = note.toNoteDetails(),
                 isEntryValid = true
             )
         }
@@ -56,11 +55,10 @@ class NoteViewModel (
     private fun observeNotes(){
         viewModelScope.launch {
             noteRepository.lookingForNotesStream(_nameUiState.value.partName).collect{
-                Log.d("NOTEViewModel", "SELECTED hi bro: ${it}")
+                Log.d("NOTEViewModel", "SELECTED hi bro: $it")
                 _uiState.value = NoteUIState(
                     notesList = it,
                     selectedNote = it.firstOrNull(),
-                    noteDetails = it.firstOrNull()?.toNoteDetails() ?: NoteDetails(),
                     isEntryValid = validateInput(it.firstOrNull()?.toNoteDetails() ?: NoteDetails())
                 )
             }
@@ -100,13 +98,6 @@ class NoteViewModel (
 
 }
 
-/**
- * Ui State for All Notes Destination
- */
-data class PaneUIState(
-    val notesList: List<Note> = emptyList(),
-    val selectedNote : Note? = null,
-)
 
 /**
  * Data class to search notes
@@ -121,7 +112,7 @@ data class NameUIState(
 data class NoteUIState(
     val notesList: List<Note> = emptyList(),
     val selectedNote : Note? = null,
-    val noteDetails : NoteDetails = NoteDetails(),
+    val noteDetails : NoteDetails = selectedNote?.toNoteDetails() ?: NoteDetails(),
     val isEntryValid: Boolean = false
 )
 
@@ -148,7 +139,6 @@ fun NoteDetails.toNote(): Note = Note(
     topic = topic,
     favorite = favorite,
     rating = rating,
-    created = created
 )
 
 fun Note.toNoteDetails(): NoteDetails = NoteDetails(
@@ -158,5 +148,5 @@ fun Note.toNoteDetails(): NoteDetails = NoteDetails(
     topic = topic,
     favorite = favorite,
     rating = rating,
-    created = created?: ""
+    created = created ?:""
 )

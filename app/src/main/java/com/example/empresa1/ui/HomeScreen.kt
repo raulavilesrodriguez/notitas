@@ -1,6 +1,7 @@
 package com.example.empresa1.ui
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -17,12 +18,17 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -118,6 +124,7 @@ private fun NoteCard(
     avatar: Avatar,
     modifier: Modifier = Modifier
 ){
+    var addOrDeleteFavorites by rememberSaveable { mutableStateOf(note.favorite) }
     Surface(
         shape = MaterialTheme.shapes.medium,
         color = MaterialTheme.colorScheme.surfaceVariant,
@@ -144,6 +151,38 @@ private fun NoteCard(
                         .padding(start = dimensionResource(id = R.dimen.padding_small))
                 )
             }
+            if(addOrDeleteFavorites){
+                IconButton(
+                    onClick = {
+
+                        addOrDeleteFavorites = false
+                    },
+                    modifier = Modifier
+                        .clip(CircleShape)
+                        .background(MaterialTheme.colorScheme.surface)
+                ) {
+                    Icon(
+                        painter = painterResource(R.drawable.star_filled),
+                        contentDescription = stringResource(R.string.favorite_notes)
+                    )
+                }
+            } else {
+                IconButton(
+                    onClick = {
+
+                        addOrDeleteFavorites = true
+                    },
+                    modifier = Modifier
+                        .clip(CircleShape)
+                        .background(MaterialTheme.colorScheme.surface)
+                ) {
+                    Icon(
+                        painter = painterResource(R.drawable.star_border),
+                        contentDescription = stringResource(R.string.favorite_notes)
+                    )
+                }
+            }
+
         }
     }
 }
