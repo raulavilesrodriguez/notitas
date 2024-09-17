@@ -1,5 +1,6 @@
 package com.example.empresa1
 
+import android.util.Log
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
@@ -41,7 +42,6 @@ import com.example.empresa1.ui.NoteDetailPane
 import com.example.empresa1.ui.NoteDetails
 import com.example.empresa1.ui.NoteUIState
 import com.example.empresa1.ui.NoteViewModel
-import com.example.empresa1.ui.PaneUIState
 import com.example.empresa1.ui.SearchBar
 import com.example.empresa1.ui.emptyScreens.ImageNoNotes
 import com.example.empresa1.ui.emptyScreens.NoNotes
@@ -56,41 +56,45 @@ fun NoteApp(
     favoriteViewModel: FavoriteViewModel = viewModel(factory = AppViewModelProvider.Factory),
     entryViewModel: EntryViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ){
-    val lookingForNotesUiState by viewModel.lookingForNotesUiState.collectAsState()
-    val favoritesUiState by favoriteViewModel.favoritesUIState.collectAsState()
     val uiState by viewModel.uiState.collectAsState()
     val nameUiState by viewModel.nameUiState.collectAsState()
-    val selectNoteUIState by viewModel.selectNoteUIState.collectAsState()
+
+    val uiStateFavorite by favoriteViewModel.uiState.collectAsState()
+    val nameUiStateFavorite by favoriteViewModel.nameUiState.collectAsState()
 
     val entryUIState by entryViewModel.uiState.collectAsState()
 
     NavigationWrapperUI(
-        notes = lookingForNotesUiState.notesList,
+        uiState = uiState,
         onValueChange = viewModel::updateName,
         onNoteClick = viewModel::setSelectedNote,
-        favorites = favoritesUiState.notesList,
-        uiState = uiState,
         onNoteChange = viewModel::updateNoteDetails,
+        nameUIState = nameUiState,
+        uiStateFavorite = uiStateFavorite,
+        onValueChangeFavorite = favoriteViewModel::updateName,
+        onNoteClickFavorite = favoriteViewModel::setSelectedNote,
+        onNoteChangeFavorite = favoriteViewModel::updateNoteDetails,
+        nameUiStateFavorite = nameUiStateFavorite,
         onNoteAdd = entryViewModel::updateNoteDetails,
         entryViewModel = entryViewModel,
-        nameUIState = nameUiState,
-        selectNoteUIState = selectNoteUIState,
         entryUIState = entryUIState
     )
 }
 
 @Composable
 private fun NavigationWrapperUI(
-    notes: List<Note>,
+    uiState: NoteUIState,
     onValueChange: (String) -> Unit,
     onNoteClick: (Note) -> Unit,
-    favorites: List<Note>,
-    uiState: NoteUIState,
     onNoteChange: (NoteDetails) -> Unit,
+    nameUIState: NameUIState,
+    uiStateFavorite: NoteUIState,
+    onValueChangeFavorite: (String) -> Unit,
+    onNoteClickFavorite: (Note) -> Unit,
+    onNoteChangeFavorite: (NoteDetails) -> Unit,
+    nameUiStateFavorite: NameUIState,
     onNoteAdd: (NoteDetails) -> Unit,
     entryViewModel: EntryViewModel,
-    nameUIState: NameUIState,
-    selectNoteUIState: PaneUIState,
     entryUIState: NoteUIState
 ){
     var selectedDestination : NoteDestination by remember {
@@ -123,13 +127,11 @@ private fun NavigationWrapperUI(
     ) {
         when (selectedDestination) {
             NoteDestination.Notes -> NotesDestination(
-                notes = notes,
+                uiState = uiState,
                 onValueChange = onValueChange,
                 onNoteClick = onNoteClick,
-                uiState = uiState,
                 onNoteChange = onNoteChange,
                 nameUIState = nameUIState,
-                selectNoteUIState = selectNoteUIState
             )
             NoteDestination.Add -> AddDestination(
                 uiState = entryUIState,
@@ -138,13 +140,11 @@ private fun NavigationWrapperUI(
                 onNavigateToNotes = {selectedDestination = NoteDestination.Notes}
             )
             NoteDestination.Favorites -> NotesDestination(
-                notes = favorites,
-                onValueChange = onValueChange,
-                onNoteClick = onNoteClick,
-                uiState = uiState,
-                onNoteChange = onNoteChange,
-                nameUIState = nameUIState,
-                selectNoteUIState = selectNoteUIState
+                uiState = uiStateFavorite,
+                onValueChange = onValueChangeFavorite,
+                onNoteClick = onNoteClickFavorite,
+                onNoteChange = onNoteChangeFavorite,
+                nameUIState = nameUiStateFavorite,
             )
         }
     }
@@ -153,16 +153,14 @@ private fun NavigationWrapperUI(
 @OptIn(ExperimentalMaterial3AdaptiveApi::class)
 @Composable
 fun NotesDestination(
-    notes: List<Note>,
+    uiState: NoteUIState,
     onValueChange: (String) -> Unit,
     onNoteClick: (Note) -> Unit,
-    uiState: NoteUIState,
     onNoteChange: (NoteDetails) -> Unit,
     nameUIState: NameUIState,
-    selectNoteUIState: PaneUIState
 ){
     val navigator = rememberListDetailPaneScaffoldNavigator<Long>()
-
+    Log.d("SelectedViewModel", "SELECTED hi bro: ${uiState.selectedNote}")
     BackHandler(navigator.canNavigateBack()) {
         navigator.navigateBack()
     }
@@ -183,9 +181,9 @@ fun NotesDestination(
                                        dimensionResource(id = R.dimen.padding_medium)
                                    )
                            )
-                           if(notes.isNotEmpty()){
+                           if(uiState.notesList.isNotEmpty()){
                                HomeScreen(
-                                   notes = notes,
+                                   notes = uiState.notesList,
                                    onNoteClick = {
                                        onNoteClick(it)
                                        navigator.navigateTo(ListDetailPaneScaffoldRole.Detail, it.id.toLong())
@@ -199,7 +197,7 @@ fun NotesDestination(
         },
         detailPane = {
             AnimatedPane {
-                if(selectNoteUIState.selectedNote != null){
+                if(uiState.selectedNote != null){
                     NoteDetailPane(
                         uiState = uiState,
                         onDetailChange = onNoteChange

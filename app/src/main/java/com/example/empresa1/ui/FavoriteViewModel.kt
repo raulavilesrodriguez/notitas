@@ -13,6 +13,7 @@ import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 
 class FavoriteViewModel (
     private val noteRepository: NoteRepository
@@ -26,20 +27,13 @@ class FavoriteViewModel (
     private val _nameUiState = MutableStateFlow(NameUIState())
     val nameUiState: StateFlow<NameUIState> = _nameUiState.asStateFlow()
 
-    // UI state of SELECTED NOTE
-    private val _selectedNoteUI = MutableStateFlow(PaneUIState())
-    val selectNoteUIState: StateFlow<PaneUIState> = _selectedNoteUI.asStateFlow()
-
-    companion object {
-        private const val TIMEOUT_MILLS = 5_000L
-    }
-
     fun setSelectedNote(note: Note){
-        _selectedNoteUI.update {
-            it.copy(selectedNote = note)
-        }
         _uiState.update {
-            it.copy(noteDetails = note.toNoteDetails(), isEntryValid = true)
+            it.copy(
+                selectedNote = note,
+                noteDetails = note.toNoteDetails(),
+                isEntryValid = true
+            )
         }
     }
 
@@ -47,20 +41,28 @@ class FavoriteViewModel (
         _nameUiState.update {
             it.copy(partName = name)
         }
+        observeNotes()
+    }
+
+    init {
+        observeNotes()
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    val favoritesUIState: StateFlow<PaneUIState> =
-        _nameUiState.flatMapLatest { uiState ->
-            noteRepository.getAllFavoritesStream(uiState.partName).map {
-                val currentSelected = _selectedNoteUI.value.selectedNote
-                PaneUIState(notesList = it, selectedNote = currentSelected ?: it.firstOrNull())
+    private fun observeNotes(){
+        viewModelScope.launch {
+            _nameUiState.flatMapLatest { nameUiState ->
+                noteRepository.getAllFavoritesStream(nameUiState.partName).map{
+                    _uiState.value = NoteUIState(
+                        notesList = it,
+                        selectedNote = it.firstOrNull(),
+                        noteDetails = it.firstOrNull()?.toNoteDetails() ?: NoteDetails(),
+                        isEntryValid = validateInput(it.firstOrNull()?.toNoteDetails() ?: NoteDetails())
+                    )
+                }
             }
-        }.stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(FavoriteViewModel.TIMEOUT_MILLS),
-            initialValue = PaneUIState()
-        )
+        }
+    }
 
     /**
      * to Update notes

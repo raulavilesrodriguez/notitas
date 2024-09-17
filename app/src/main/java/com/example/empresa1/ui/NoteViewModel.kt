@@ -1,5 +1,6 @@
 package com.example.empresa1.ui
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.empresa1.data.Note
@@ -31,22 +32,13 @@ class NoteViewModel (
     private val _nameUiState = MutableStateFlow(NameUIState())
     val nameUiState: StateFlow<NameUIState> = _nameUiState.asStateFlow()
 
-    // UI state of SELECTED NOTE
-    private val _selectedNoteUI = MutableStateFlow(PaneUIState())
-    val selectNoteUIState: StateFlow<PaneUIState> = _selectedNoteUI.asStateFlow()
-
-    companion object {
-        private const val TIMEOUT_MILLS = 5_000L
-    }
-
     fun setSelectedNote(note: Note){
-        _selectedNoteUI.update {
-            it.copy(
-                selectedNote = note
-            )
-        }
         _uiState.update {
-            it.copy(noteDetails = note.toNoteDetails(), isEntryValid = true)
+            it.copy(
+                selectedNote = note,
+                noteDetails = note.toNoteDetails(),
+                isEntryValid = true
+            )
         }
     }
 
@@ -54,20 +46,26 @@ class NoteViewModel (
         _nameUiState.update {
             it.copy(partName = name)
         }
+        observeNotes()
     }
 
-    @OptIn(ExperimentalCoroutinesApi::class)
-    val lookingForNotesUiState : StateFlow<PaneUIState> =
-        _nameUiState.flatMapLatest { nameUiState ->
-            noteRepository.lookingForNotesStream(nameUiState.partName).map {
-                val currentSelected = _selectedNoteUI.value.selectedNote
-                PaneUIState(notesList = it, selectedNote = currentSelected ?: it.firstOrNull())
+    init {
+        observeNotes()
+    }
+
+    private fun observeNotes(){
+        viewModelScope.launch {
+            noteRepository.lookingForNotesStream(_nameUiState.value.partName).collect{
+                Log.d("NOTEViewModel", "SELECTED hi bro: ${it}")
+                _uiState.value = NoteUIState(
+                    notesList = it,
+                    selectedNote = it.firstOrNull(),
+                    noteDetails = it.firstOrNull()?.toNoteDetails() ?: NoteDetails(),
+                    isEntryValid = validateInput(it.firstOrNull()?.toNoteDetails() ?: NoteDetails())
+                )
             }
-        }.stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(TIMEOUT_MILLS),
-            initialValue = PaneUIState()
-        )
+        }
+    }
 
     /**
      * to Update notes
@@ -118,9 +116,11 @@ data class NameUIState(
 )
 
 /**
- * Data class to show note details
+ * Data class to show note details and Ui State for All Notes Destination
  */
 data class NoteUIState(
+    val notesList: List<Note> = emptyList(),
+    val selectedNote : Note? = null,
     val noteDetails : NoteDetails = NoteDetails(),
     val isEntryValid: Boolean = false
 )

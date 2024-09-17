@@ -75,6 +75,7 @@ private fun NotesList(
                 note = it,
                 avatar = avatar,
                 modifier = Modifier
+                    .padding(dimensionResource(id = R.dimen.padding_small))
                     .clickable { onNoteClick(it) }
             )
         }
@@ -120,7 +121,7 @@ private fun NoteCard(
     Surface(
         shape = MaterialTheme.shapes.medium,
         color = MaterialTheme.colorScheme.surfaceVariant,
-        modifier = modifier
+        modifier = modifier.fillMaxWidth()
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,

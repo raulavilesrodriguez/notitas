@@ -47,22 +47,27 @@ fun NoteDetailPane(
             noteDetails = uiState.noteDetails,
             onDetailChange = onDetailChange
         )
-        Spacer(modifier = Modifier
-            .padding(dimensionResource(id = R.dimen.padding_medium))
-            .width(dimensionResource(id = R.dimen.padding_small)))
         HorizontalDivider()
-        if(uiState.isEntryValid){
-            MessageInput(
-                message = R.string.correct_update,
-                avatar = R.drawable.happy,
-                color = Color.Green
-            )
-        } else {
-            MessageInput(
-                message = R.string.incorrect_update,
-                avatar = R.drawable.unhappy,
-                color = Color.Red
-            )
+        Spacer(modifier = Modifier
+            .padding(dimensionResource(id = R.dimen.padding_small))
+            .width(dimensionResource(id = R.dimen.padding_small)))
+        Row(
+            modifier = modifier.padding(start = dimensionResource(id = R.dimen.padding_medium)),
+            verticalAlignment = Alignment.CenterVertically
+        ){
+            if(uiState.isEntryValid){
+                MessageInput(
+                    message = R.string.correct_update,
+                    avatar = R.drawable.happy,
+                    color = Color.Green
+                )
+            } else {
+                MessageInput(
+                    message = R.string.incorrect_update,
+                    avatar = R.drawable.unhappy,
+                    color = Color.Red
+                )
+            }
         }
     }
 }
