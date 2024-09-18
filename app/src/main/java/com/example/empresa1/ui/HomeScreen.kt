@@ -130,59 +130,64 @@ private fun NoteCard(
         color = MaterialTheme.colorScheme.surfaceVariant,
         modifier = modifier.fillMaxWidth()
     ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.width(dimensionResource(id = R.dimen.width_note))
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(dimensionResource(R.dimen.padding_medium))
         ) {
-            NoteImage(drawableResource = avatar.imageId, description = avatar.description)
-            Spacer(modifier = Modifier.width(dimensionResource(id = R.dimen.padding_very_small)))
-            Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    text = note.topic,
-                    fontWeight = FontWeight.Bold,
-                    modifier = Modifier
-                        .padding(start = dimensionResource(id = R.dimen.padding_small))
-                )
-                Text(
-                    text = note.tittle,
-                    style = MaterialTheme.typography.labelMedium,
-                    color = MaterialTheme.colorScheme.outline,
-                    modifier = Modifier
-                        .padding(start = dimensionResource(id = R.dimen.padding_small))
-                )
-            }
-            if(addOrDeleteFavorites){
-                IconButton(
-                    onClick = {
-
-                        addOrDeleteFavorites = false
-                    },
-                    modifier = Modifier
-                        .clip(CircleShape)
-                        .background(MaterialTheme.colorScheme.surface)
-                ) {
-                    Icon(
-                        painter = painterResource(R.drawable.star_filled),
-                        contentDescription = stringResource(R.string.favorite_notes)
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                NoteImage(drawableResource = avatar.imageId, description = avatar.description)
+                Spacer(modifier = Modifier.width(dimensionResource(id = R.dimen.padding_very_small)))
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = note.topic,
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier
+                            .padding(start = dimensionResource(id = R.dimen.padding_small))
+                    )
+                    Text(
+                        text = note.tittle,
+                        style = MaterialTheme.typography.labelMedium,
+                        color = MaterialTheme.colorScheme.outline,
+                        modifier = Modifier
+                            .padding(start = dimensionResource(id = R.dimen.padding_small))
                     )
                 }
-            } else {
-                IconButton(
-                    onClick = {
+                if(addOrDeleteFavorites){
+                    IconButton(
+                        onClick = {
 
-                        addOrDeleteFavorites = true
-                    },
-                    modifier = Modifier
-                        .clip(CircleShape)
-                        .background(MaterialTheme.colorScheme.surface)
-                ) {
-                    Icon(
-                        painter = painterResource(R.drawable.star_border),
-                        contentDescription = stringResource(R.string.favorite_notes)
-                    )
+                            addOrDeleteFavorites = false
+                        },
+                        modifier = Modifier
+                            .clip(CircleShape)
+                            .background(MaterialTheme.colorScheme.surface)
+                    ) {
+                        Icon(
+                            painter = painterResource(R.drawable.star_filled),
+                            contentDescription = stringResource(R.string.favorite_notes)
+                        )
+                    }
+                } else {
+                    IconButton(
+                        onClick = {
+
+                            addOrDeleteFavorites = true
+                        },
+                        modifier = Modifier
+                            .clip(CircleShape)
+                            .background(MaterialTheme.colorScheme.surface)
+                    ) {
+                        Icon(
+                            painter = painterResource(R.drawable.star_border),
+                            contentDescription = stringResource(R.string.favorite_notes)
+                        )
+                    }
                 }
             }
-
         }
     }
 }
