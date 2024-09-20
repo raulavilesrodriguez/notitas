@@ -11,6 +11,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
@@ -86,6 +87,13 @@ class NoteViewModel (
     suspend fun updateNote(){
         if(validateInput(_uiState.value.noteDetails)){
             noteRepository.updateNote(_uiState.value.noteDetails.toNote())
+        }
+    }
+
+    suspend fun updateUIState(id: Int){
+        val x = noteRepository.getNoteStream(id).first().toNoteDetails()
+        _uiState.update {
+            it.copy(noteDetails = x, isEntryValid = validateInput(x))
         }
     }
 

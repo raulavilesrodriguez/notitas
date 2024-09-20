@@ -13,12 +13,16 @@ interface NoteDao {
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insert(note: Note)
+
     @Update
     suspend fun update(note: Note)
+
     @Delete
     suspend fun delete(note: Note)
+
     @Query("SELECT * FROM notes ORDER BY created DESC")
     fun getAllNotes(): Flow<List<Note>>
+
     @Query("SELECT *\n" +
             "  FROM notes\n" +
             " WHERE (tittle LIKE '%' || :partName || '%' OR \n" +

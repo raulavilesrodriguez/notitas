@@ -49,7 +49,11 @@ import com.example.empresa1.ui.theme.Empresa1Theme
 
 @Composable
 fun HomeScreen(
+    uiState: NoteUIState,
     notes: List<Note>,
+    onNoteChange: (NoteDetails) -> Unit,
+    onUpdateNote: () -> Unit,
+    updateUIState: (Int) -> Unit,
     onNoteClick: (Note) -> Unit,
     modifier: Modifier = Modifier
 ){
@@ -58,7 +62,11 @@ fun HomeScreen(
         modifier = modifier
     ) {
         NotesList(
+            uiState = uiState,
             notes = notes,
+            onNoteChange = onNoteChange,
+            onUpdateNote = onUpdateNote,
+            updateUIState = updateUIState,
             onNoteClick = onNoteClick,
         )
     }
@@ -67,7 +75,11 @@ fun HomeScreen(
 
 @Composable
 private fun NotesList(
+    uiState: NoteUIState,
     notes: List<Note>,
+    onNoteChange: (NoteDetails) -> Unit,
+    onUpdateNote: () -> Unit,
+    updateUIState: (Int) -> Unit,
     onNoteClick: (Note) -> Unit,
     modifier: Modifier = Modifier
 ){
@@ -78,7 +90,11 @@ private fun NotesList(
             val avatar = LocalAvatarsData.avatars.firstOrNull { avatar ->
                 stringResource(id = avatar.description) == it.topic} ?: LocalAvatarsData.avatars.first()
             NoteCard(
+                noteDetails = uiState.noteDetails,
                 note = it,
+                onNoteChange = onNoteChange,
+                onUpdateNote = onUpdateNote,
+                updateUIState = updateUIState,
                 avatar = avatar,
                 modifier = Modifier
                     .padding(dimensionResource(id = R.dimen.padding_small))
@@ -120,7 +136,11 @@ fun SearchBar(
 
 @Composable
 private fun NoteCard(
+    noteDetails: NoteDetails,
     note: Note,
+    onNoteChange: (NoteDetails) -> Unit,
+    onUpdateNote: () -> Unit,
+    updateUIState: (Int) -> Unit,
     avatar: Avatar,
     modifier: Modifier = Modifier
 ){
@@ -159,14 +179,16 @@ private fun NoteCard(
                 if(addOrDeleteFavorites){
                     IconButton(
                         onClick = {
-
+                            updateUIState(note.id)
+                            onNoteChange(noteDetails.copy(favorite = false))
+                            onUpdateNote()
                             addOrDeleteFavorites = false
                         },
                         modifier = Modifier
                             .clip(CircleShape)
                             .background(MaterialTheme.colorScheme.surface)
                     ) {
-                        Icon(
+                        Image(
                             painter = painterResource(R.drawable.star_filled),
                             contentDescription = stringResource(R.string.favorite_notes)
                         )
@@ -174,14 +196,16 @@ private fun NoteCard(
                 } else {
                     IconButton(
                         onClick = {
-
+                            updateUIState(note.id)
+                            onNoteChange(noteDetails.copy(favorite = true))
+                            onUpdateNote()
                             addOrDeleteFavorites = true
                         },
                         modifier = Modifier
                             .clip(CircleShape)
                             .background(MaterialTheme.colorScheme.surface)
                     ) {
-                        Icon(
+                        Image(
                             painter = painterResource(R.drawable.star_border),
                             contentDescription = stringResource(R.string.favorite_notes)
                         )
@@ -213,7 +237,11 @@ private fun NoteImage(
 private fun NoteCardPreview(){
     Empresa1Theme{
         NoteCard(
+            noteDetails = NoteDetails(),
             note = Note(0, "Info Bco Pichincha", "Clave:1234, gbh@gmai.com", "Finanzas"),
+            onNoteChange = {},
+            onUpdateNote = {},
+            updateUIState = {},
             avatar = Avatar(R.drawable.`fun`, R.string.`fun`))
     }
 }
