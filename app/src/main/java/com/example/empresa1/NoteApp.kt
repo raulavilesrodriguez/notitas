@@ -48,7 +48,6 @@ import com.example.empresa1.ui.emptyScreens.ImageNoNotes
 import com.example.empresa1.ui.emptyScreens.NoNotes
 import com.example.empresa1.ui.navigation.NoteDestination
 import com.example.empresa1.ui.toNoteDetails
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 
 private val WINDOW_WIDTH_LARGE = 1200.dp
@@ -75,11 +74,6 @@ fun NoteApp(
         onNoteClick = viewModel::setSelectedNote,
         onNoteChange = viewModel::updateNoteDetails,
         nameUIState = nameUiState,
-        updateUIState = {
-            coroutineScope.launch {
-                viewModel.updateUIState(it)
-            }
-        },
         onUpdateNote = {
             coroutineScope.launch {
                 viewModel.updateNote()
@@ -103,7 +97,6 @@ private fun NavigationWrapperUI(
     onNoteClick: (Note) -> Unit,
     onNoteChange: (NoteDetails) -> Unit,
     nameUIState: NameUIState,
-    updateUIState: (Int) -> Unit,
     onUpdateNote: () -> Unit,
     uiStateFavorite: NoteUIState,
     onValueChangeFavorite: (String) -> Unit,
@@ -150,7 +143,6 @@ private fun NavigationWrapperUI(
                 onNoteChange = onNoteChange,
                 nameUIState = nameUIState,
                 onUpdateNote = onUpdateNote,
-                updateUIState = updateUIState
             )
             NoteDestination.Add -> AddDestination(
                 uiState = entryUIState,
@@ -165,7 +157,6 @@ private fun NavigationWrapperUI(
                 onNoteChange = onNoteChangeFavorite,
                 nameUIState = nameUiStateFavorite,
                 onUpdateNote = onUpdateNote,
-                updateUIState = updateUIState,
             )
         }
     }
@@ -180,10 +171,9 @@ fun NotesDestination(
     onNoteChange: (NoteDetails) -> Unit,
     nameUIState: NameUIState,
     onUpdateNote: () -> Unit,
-    updateUIState: (Int) -> Unit,
 ){
     val navigator = rememberListDetailPaneScaffoldNavigator<Long>()
-    Log.d("SelectedViewModel", "SELECTED hi bro: ${uiState.selectedNote?.toNoteDetails()}")
+    Log.d("SelectedViewModel", "SELECTED in NoteApp: ${uiState.selectedNote?.toNoteDetails()}")
     BackHandler(navigator.canNavigateBack()) {
         navigator.navigateBack()
     }
@@ -210,11 +200,11 @@ fun NotesDestination(
                                    notes = uiState.notesList,
                                    onNoteChange = onNoteChange,
                                    onUpdateNote = onUpdateNote,
-                                   updateUIState = updateUIState,
                                    onNoteClick = {
                                        onNoteClick(it)
                                        navigator.navigateTo(ListDetailPaneScaffoldRole.Detail, it.id.toLong())
-                                   }
+                                   },
+                                   onFavoriteClick = {onNoteClick(it)}
                                )
                            } else {
                                NoNotes()

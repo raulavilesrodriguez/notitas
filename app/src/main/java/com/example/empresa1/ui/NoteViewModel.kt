@@ -57,9 +57,14 @@ class NoteViewModel (
         viewModelScope.launch {
             noteRepository.lookingForNotesStream(_nameUiState.value.partName).collect{
                 Log.d("NOTEViewModel", "SELECTED hi bro: $it")
+                val currentSelected = if(_nameUiState.value.partName ==""){
+                    _uiState.value.selectedNote
+                } else {
+                    null
+                }
                 _uiState.value = NoteUIState(
                     notesList = it,
-                    selectedNote = it.firstOrNull(),
+                    selectedNote = currentSelected ?: it.firstOrNull(),
                     isEntryValid = validateInput(it.firstOrNull()?.toNoteDetails() ?: NoteDetails())
                 )
             }
@@ -90,13 +95,6 @@ class NoteViewModel (
         }
     }
 
-    suspend fun updateUIState(id: Int){
-        val x = noteRepository.getNoteStream(id).first().toNoteDetails()
-        _uiState.update {
-            it.copy(noteDetails = x, isEntryValid = validateInput(x))
-        }
-    }
-
     /**
      * to DELETE Notes
      */
@@ -120,7 +118,7 @@ data class NameUIState(
 data class NoteUIState(
     val notesList: List<Note> = emptyList(),
     val selectedNote : Note? = null,
-    val noteDetails : NoteDetails = selectedNote?.toNoteDetails() ?: NoteDetails(),
+    val noteDetails : NoteDetails = NoteDetails(),
     val isEntryValid: Boolean = false
 )
 

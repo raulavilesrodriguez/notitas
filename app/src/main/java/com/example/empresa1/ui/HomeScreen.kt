@@ -1,10 +1,9 @@
 package com.example.empresa1.ui
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -36,7 +35,6 @@ import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.empresa1.R
@@ -53,8 +51,8 @@ fun HomeScreen(
     notes: List<Note>,
     onNoteChange: (NoteDetails) -> Unit,
     onUpdateNote: () -> Unit,
-    updateUIState: (Int) -> Unit,
     onNoteClick: (Note) -> Unit,
+    onFavoriteClick: (Note) -> Unit,
     modifier: Modifier = Modifier
 ){
     Column(
@@ -66,8 +64,8 @@ fun HomeScreen(
             notes = notes,
             onNoteChange = onNoteChange,
             onUpdateNote = onUpdateNote,
-            updateUIState = updateUIState,
             onNoteClick = onNoteClick,
+            onFavoriteClick = onFavoriteClick
         )
     }
 }
@@ -79,8 +77,8 @@ private fun NotesList(
     notes: List<Note>,
     onNoteChange: (NoteDetails) -> Unit,
     onUpdateNote: () -> Unit,
-    updateUIState: (Int) -> Unit,
     onNoteClick: (Note) -> Unit,
+    onFavoriteClick: (Note) -> Unit,
     modifier: Modifier = Modifier
 ){
     LazyColumn(
@@ -94,7 +92,7 @@ private fun NotesList(
                 note = it,
                 onNoteChange = onNoteChange,
                 onUpdateNote = onUpdateNote,
-                updateUIState = updateUIState,
+                onFavoriteClick = onFavoriteClick,
                 avatar = avatar,
                 modifier = Modifier
                     .padding(dimensionResource(id = R.dimen.padding_small))
@@ -140,7 +138,7 @@ private fun NoteCard(
     note: Note,
     onNoteChange: (NoteDetails) -> Unit,
     onUpdateNote: () -> Unit,
-    updateUIState: (Int) -> Unit,
+    onFavoriteClick: (Note) -> Unit,
     avatar: Avatar,
     modifier: Modifier = Modifier
 ){
@@ -177,11 +175,20 @@ private fun NoteCard(
                     )
                 }
                 if(addOrDeleteFavorites){
+                    Log.d("SelectedNOTEE", "SELECTED in HomeScreen: $note")
                     IconButton(
                         onClick = {
-                            updateUIState(note.id)
-                            onNoteChange(noteDetails.copy(favorite = false))
+                            onNoteChange(noteDetails.copy(
+                                id = note.id,
+                                tittle = note.tittle,
+                                text = note.text,
+                                topic = note.topic,
+                                favorite = false,
+                                rating = note.rating,
+                                created = note.created ?: ""
+                            ))
                             onUpdateNote()
+                            onFavoriteClick(note)
                             addOrDeleteFavorites = false
                         },
                         modifier = Modifier
@@ -196,9 +203,17 @@ private fun NoteCard(
                 } else {
                     IconButton(
                         onClick = {
-                            updateUIState(note.id)
-                            onNoteChange(noteDetails.copy(favorite = true))
+                            onNoteChange(noteDetails.copy(
+                                id = note.id,
+                                tittle = note.tittle,
+                                text = note.text,
+                                topic = note.topic,
+                                favorite = true,
+                                rating = note.rating,
+                                created = note.created ?: ""
+                            ))
                             onUpdateNote()
+                            onFavoriteClick(note)
                             addOrDeleteFavorites = true
                         },
                         modifier = Modifier
@@ -241,7 +256,7 @@ private fun NoteCardPreview(){
             note = Note(0, "Info Bco Pichincha", "Clave:1234, gbh@gmai.com", "Finanzas"),
             onNoteChange = {},
             onUpdateNote = {},
-            updateUIState = {},
+            onFavoriteClick = {},
             avatar = Avatar(R.drawable.`fun`, R.string.`fun`))
     }
 }
