@@ -31,6 +31,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -96,7 +97,12 @@ private fun NotesList(
                 avatar = avatar,
                 modifier = Modifier
                     .padding(dimensionResource(id = R.dimen.padding_small))
-                    .clickable { onNoteClick(it) }
+                    .clickable { onNoteClick(it) },
+                color = if(it.id == uiState.selectedNote?.id){
+                    MaterialTheme.colorScheme.inverseSurface
+                } else {
+                    MaterialTheme.colorScheme.inverseOnSurface
+                }
             )
         }
     }
@@ -140,12 +146,13 @@ private fun NoteCard(
     onUpdateNote: () -> Unit,
     onFavoriteClick: (Note) -> Unit,
     avatar: Avatar,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    color: Color
 ){
     var addOrDeleteFavorites by rememberSaveable { mutableStateOf(note.favorite) }
     Surface(
         shape = MaterialTheme.shapes.medium,
-        color = MaterialTheme.colorScheme.surfaceVariant,
+        color = color,
         modifier = modifier.fillMaxWidth()
     ) {
         Column(
@@ -257,7 +264,9 @@ private fun NoteCardPreview(){
             onNoteChange = {},
             onUpdateNote = {},
             onFavoriteClick = {},
-            avatar = Avatar(R.drawable.`fun`, R.string.`fun`))
+            avatar = Avatar(R.drawable.`fun`, R.string.`fun`),
+            color = MaterialTheme.colorScheme.surfaceVariant
+            )
     }
 }
 

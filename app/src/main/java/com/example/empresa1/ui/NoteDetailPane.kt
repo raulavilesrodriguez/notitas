@@ -37,7 +37,9 @@ import com.example.empresa1.ui.theme.Empresa1Theme
 fun NoteDetailPane(
     uiState: NoteUIState,
     modifier: Modifier = Modifier,
-    onDetailChange: (NoteDetails) -> Unit
+    onDetailChange: (NoteDetails) -> Unit,
+    onCancel: () -> Unit = {},
+    onSubmit: () -> Unit = {}
 ){
     Column(
         modifier = modifier.padding(dimensionResource(id = R.dimen.padding_small))
@@ -45,6 +47,11 @@ fun NoteDetailPane(
         NoteInputForm(
             noteDetails = uiState.selectedNote?.toNoteDetails()?:NoteDetails(),
             onDetailChange = onDetailChange
+        )
+        ButtonRow(
+            onCancel = onCancel,
+            onSubmit = onSubmit,
+            submitButtonEnabled = uiState.isEntryValid
         )
         HorizontalDivider()
         Spacer(modifier = Modifier
