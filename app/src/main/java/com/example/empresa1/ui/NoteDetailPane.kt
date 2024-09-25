@@ -38,8 +38,8 @@ fun NoteDetailPane(
     uiState: NoteUIState,
     modifier: Modifier = Modifier,
     onDetailChange: (NoteDetails) -> Unit,
-    onCancel: () -> Unit = {},
-    onSubmit: () -> Unit = {}
+    onDelete: () -> Unit,
+    onSubmit: () -> Unit
 ){
     Column(
         modifier = modifier.padding(dimensionResource(id = R.dimen.padding_small))
@@ -49,9 +49,10 @@ fun NoteDetailPane(
             onDetailChange = onDetailChange
         )
         ButtonRow(
-            onCancel = onCancel,
+            onCancel = onDelete,
             onSubmit = onSubmit,
-            submitButtonEnabled = uiState.isEntryValid
+            submitButtonEnabled = uiState.isEntryValid,
+            descriptionButtonLeft = stringResource(R.string.delete)
         )
         HorizontalDivider()
         Spacer(modifier = Modifier

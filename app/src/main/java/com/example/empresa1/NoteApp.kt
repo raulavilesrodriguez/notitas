@@ -79,6 +79,11 @@ fun NoteApp(
                 viewModel.updateNote()
             }
         },
+        onDelete = {
+            coroutineScope.launch {
+                viewModel.deleteNote()
+            }
+        },
         uiStateFavorite = uiStateFavorite,
         onValueChangeFavorite = favoriteViewModel::updateName,
         onNoteClickFavorite = favoriteViewModel::setSelectedNote,
@@ -98,6 +103,7 @@ private fun NavigationWrapperUI(
     onNoteChange: (NoteDetails) -> Unit,
     nameUIState: NameUIState,
     onUpdateNote: () -> Unit,
+    onDelete: () -> Unit,
     uiStateFavorite: NoteUIState,
     onValueChangeFavorite: (String) -> Unit,
     onNoteClickFavorite: (Note) -> Unit,
@@ -143,6 +149,7 @@ private fun NavigationWrapperUI(
                 onNoteChange = onNoteChange,
                 nameUIState = nameUIState,
                 onUpdateNote = onUpdateNote,
+                onDelete = onDelete
             )
             NoteDestination.Add -> AddDestination(
                 uiState = entryUIState,
@@ -157,6 +164,7 @@ private fun NavigationWrapperUI(
                 onNoteChange = onNoteChangeFavorite,
                 nameUIState = nameUiStateFavorite,
                 onUpdateNote = onUpdateNote,
+                onDelete = onDelete
             )
         }
     }
@@ -171,6 +179,7 @@ fun NotesDestination(
     onNoteChange: (NoteDetails) -> Unit,
     nameUIState: NameUIState,
     onUpdateNote: () -> Unit,
+    onDelete: () -> Unit,
 ){
     val navigator = rememberListDetailPaneScaffoldNavigator<Long>()
     Log.d("SelectedViewModel", "SELECTED in NoteApp: ${uiState.selectedNote?.toNoteDetails()}")
@@ -217,7 +226,9 @@ fun NotesDestination(
                 if(uiState.selectedNote != null){
                     NoteDetailPane(
                         uiState = uiState,
-                        onDetailChange = onNoteChange
+                        onDetailChange = onNoteChange,
+                        onDelete = onDelete,
+                        onSubmit = onUpdateNote
                     )
                 } else {
                     ImageNoNotes()

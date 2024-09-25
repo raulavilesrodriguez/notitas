@@ -34,7 +34,8 @@ fun AddScreen(
         ButtonRow(
             onCancel = onCancel,
             onSubmit = onSubmit,
-            submitButtonEnabled = uiState.isEntryValid
+            submitButtonEnabled = uiState.isEntryValid,
+            descriptionButtonLeft = stringResource(R.string.cancel)
         )
     }
 }
@@ -45,6 +46,7 @@ fun ButtonRow(
     onCancel: () -> Unit,
     onSubmit: () -> Unit,
     submitButtonEnabled: Boolean,
+    descriptionButtonLeft: String,
     modifier: Modifier = Modifier
 ){
     Row(
@@ -57,7 +59,7 @@ fun ButtonRow(
             border = null,
             modifier = Modifier.weight(1f),
         ) {
-            Text(text = stringResource(id = R.string.cancel).uppercase(Locale.getDefault()))
+            Text(text = descriptionButtonLeft.uppercase(Locale.getDefault()))
         }
         Button(
             onClick = onSubmit,

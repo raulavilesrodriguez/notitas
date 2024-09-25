@@ -21,6 +21,7 @@
     <string name="correct_update">Datos Actualizados</string>
     <string name="incorrect_update">Faltan Campos de Llenar</string>
     <string name="cancel">Cancelar</string>
+    <string name="delete">Borrar</string>
     <string name="save">Guardar</string>
     <string name="label_note">Escribe tu notita</string>
 </resources>

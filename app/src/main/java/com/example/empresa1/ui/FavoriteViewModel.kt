@@ -51,9 +51,14 @@ class FavoriteViewModel (
     private fun observeNotes(){
         viewModelScope.launch {
             noteRepository.getAllFavoritesStream(_nameUiState.value.partName).collect{
+                val currentSelected = if(_nameUiState.value.partName ==""){
+                    _uiState.value.selectedNote
+                } else {
+                    null
+                }
                 _uiState.value = NoteUIState(
                     notesList = it,
-                    selectedNote = it.firstOrNull(),
+                    selectedNote = currentSelected ?: it.firstOrNull(),
                     isEntryValid = validateInput(it.firstOrNull()?.toNoteDetails() ?: NoteDetails())
                 )
             }
