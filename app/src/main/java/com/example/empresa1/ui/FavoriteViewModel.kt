@@ -87,6 +87,12 @@ class FavoriteViewModel (
         if(validateInput(_uiState.value.noteDetails)){
             noteRepository.updateNote(_uiState.value.noteDetails.toNote())
         }
+        _uiState.update {
+            it.copy(
+                selectedNote = null
+            )
+        }
+        observeNotes()
     }
 
     /**
@@ -94,5 +100,11 @@ class FavoriteViewModel (
      */
     suspend fun deleteNote(){
         noteRepository.deleteNote(_uiState.value.noteDetails.toNote())
+        _uiState.update {
+            it.copy(
+                selectedNote = null
+            )
+        }
+        observeNotes()
     }
 }

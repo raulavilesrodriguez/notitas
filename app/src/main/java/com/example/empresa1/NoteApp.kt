@@ -89,6 +89,16 @@ fun NoteApp(
         onNoteClickFavorite = favoriteViewModel::setSelectedNote,
         onNoteChangeFavorite = favoriteViewModel::updateNoteDetails,
         nameUiStateFavorite = nameUiStateFavorite,
+        onUpdateFavorite = {
+            coroutineScope.launch {
+                favoriteViewModel.updateNote()
+            }
+        },
+        onDeleteFavorite = {
+            coroutineScope.launch {
+                favoriteViewModel.deleteNote()
+            }
+        },
         onNoteAdd = entryViewModel::updateNoteDetails,
         entryViewModel = entryViewModel,
         entryUIState = entryUIState
@@ -109,6 +119,8 @@ private fun NavigationWrapperUI(
     onNoteClickFavorite: (Note) -> Unit,
     onNoteChangeFavorite: (NoteDetails) -> Unit,
     nameUiStateFavorite: NameUIState,
+    onUpdateFavorite: () -> Unit,
+    onDeleteFavorite: () -> Unit,
     onNoteAdd: (NoteDetails) -> Unit,
     entryViewModel: EntryViewModel,
     entryUIState: NoteUIState
@@ -163,8 +175,8 @@ private fun NavigationWrapperUI(
                 onNoteClick = onNoteClickFavorite,
                 onNoteChange = onNoteChangeFavorite,
                 nameUIState = nameUiStateFavorite,
-                onUpdateNote = onUpdateNote,
-                onDelete = onDelete
+                onUpdateNote = onUpdateFavorite,
+                onDelete = onDeleteFavorite
             )
         }
     }
@@ -280,5 +292,7 @@ fun AddDestination(
         detailPane = {}
     )
 }
+
+
 
 

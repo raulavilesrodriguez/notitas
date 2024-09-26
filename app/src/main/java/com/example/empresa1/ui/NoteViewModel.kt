@@ -93,13 +93,21 @@ class NoteViewModel (
         if(validateInput(_uiState.value.noteDetails)){
             noteRepository.updateNote(_uiState.value.noteDetails.toNote())
         }
+        observeNotes()
     }
+
 
     /**
      * to DELETE Notes
      */
     suspend fun deleteNote(){
         noteRepository.deleteNote(_uiState.value.noteDetails.toNote())
+        _uiState.update {
+            it.copy(
+                selectedNote = null
+            )
+        }
+        observeNotes()
     }
 
 }

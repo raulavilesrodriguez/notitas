@@ -32,6 +32,7 @@ class EntryViewModel(
     suspend fun saveNote(){
         if(validateInput()){
             noteRepository.insertNote(_uiState.value.noteDetails.toNote())
+            resetInput()
         }
     }
 
