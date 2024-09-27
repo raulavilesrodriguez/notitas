@@ -45,7 +45,7 @@ fun NoteDetailPane(
         modifier = modifier.padding(dimensionResource(id = R.dimen.padding_small))
     ) {
         NoteInputForm(
-            noteDetails = uiState.selectedNote?.toNoteDetails()?:NoteDetails(),
+            noteDetails = uiState.noteDetails,
             onDetailChange = onDetailChange
         )
         ButtonRow(

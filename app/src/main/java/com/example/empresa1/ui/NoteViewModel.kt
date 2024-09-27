@@ -37,7 +37,7 @@ class NoteViewModel (
         _uiState.update {
             it.copy(
                 selectedNote = note,
-                isEntryValid = true
+                isEntryValid = true,
             )
         }
     }
@@ -137,7 +137,7 @@ data class NoteDetails(
     val topic: String = "Otros",
     val favorite: Boolean = false,
     val rating: Int = 0,
-    val created: String = getCurrentDateTime()
+    val created: String = ""
 )
 
 private fun getCurrentDateTime(): String {

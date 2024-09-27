@@ -195,6 +195,7 @@ fun NotesDestination(
 ){
     val navigator = rememberListDetailPaneScaffoldNavigator<Long>()
     Log.d("SelectedViewModel", "SELECTED in NoteApp: ${uiState.selectedNote?.toNoteDetails()}")
+    Log.d("ViewModel", "NOTEDETAILS in NoteApp: ${uiState.noteDetails}")
     BackHandler(navigator.canNavigateBack()) {
         navigator.navigateBack()
     }
