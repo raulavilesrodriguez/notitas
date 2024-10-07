@@ -192,7 +192,6 @@ fun NotesDestination(
     nameUIState: NameUIState,
     onUpdateNote: () -> Unit,
     onDelete: () -> Unit,
-    onNavigateToNotes: () -> Unit = {}
 ){
     val selectedNote = uiState.selectedNote
     val isEntryValid = uiState.isEntryValid
