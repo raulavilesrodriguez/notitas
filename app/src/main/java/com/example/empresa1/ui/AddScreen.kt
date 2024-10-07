@@ -13,6 +13,7 @@ import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.empresa1.R
+import com.example.empresa1.data.Note
 import com.example.empresa1.ui.theme.Empresa1Theme
 import java.util.Locale
 
@@ -20,7 +21,7 @@ import java.util.Locale
 fun AddScreen(
     uiState: NoteUIState,
     modifier: Modifier = Modifier,
-    onDetailChange: (NoteDetails) -> Unit,
+    onDetailChange: (Note) -> Unit,
     onCancel: () -> Unit,
     onSubmit: () -> Unit
 ){
@@ -28,7 +29,7 @@ fun AddScreen(
         modifier = modifier
     ) {
         NoteInputForm(
-            noteDetails = uiState.noteDetails,
+            noteDetails = uiState.selectedNote?: Note(),
             onDetailChange = onDetailChange
         )
         ButtonRow(

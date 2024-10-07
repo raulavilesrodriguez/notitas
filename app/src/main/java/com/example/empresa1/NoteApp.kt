@@ -110,18 +110,18 @@ private fun NavigationWrapperUI(
     uiState: NoteUIState,
     onValueChange: (String) -> Unit,
     onNoteClick: (Note) -> Unit,
-    onNoteChange: (NoteDetails) -> Unit,
+    onNoteChange: (Note) -> Unit,
     nameUIState: NameUIState,
     onUpdateNote: () -> Unit,
     onDelete: () -> Unit,
     uiStateFavorite: NoteUIState,
     onValueChangeFavorite: (String) -> Unit,
     onNoteClickFavorite: (Note) -> Unit,
-    onNoteChangeFavorite: (NoteDetails) -> Unit,
+    onNoteChangeFavorite: (Note) -> Unit,
     nameUiStateFavorite: NameUIState,
     onUpdateFavorite: () -> Unit,
     onDeleteFavorite: () -> Unit,
-    onNoteAdd: (NoteDetails) -> Unit,
+    onNoteAdd: (Note) -> Unit,
     entryViewModel: EntryViewModel,
     entryUIState: NoteUIState
 ){
@@ -161,7 +161,7 @@ private fun NavigationWrapperUI(
                 onNoteChange = onNoteChange,
                 nameUIState = nameUIState,
                 onUpdateNote = onUpdateNote,
-                onDelete = onDelete
+                onDelete = onDelete,
             )
             NoteDestination.Add -> AddDestination(
                 uiState = entryUIState,
@@ -176,7 +176,7 @@ private fun NavigationWrapperUI(
                 onNoteChange = onNoteChangeFavorite,
                 nameUIState = nameUiStateFavorite,
                 onUpdateNote = onUpdateFavorite,
-                onDelete = onDeleteFavorite
+                onDelete = onDeleteFavorite,
             )
         }
     }
@@ -188,14 +188,18 @@ fun NotesDestination(
     uiState: NoteUIState,
     onValueChange: (String) -> Unit,
     onNoteClick: (Note) -> Unit,
-    onNoteChange: (NoteDetails) -> Unit,
+    onNoteChange: (Note) -> Unit,
     nameUIState: NameUIState,
     onUpdateNote: () -> Unit,
     onDelete: () -> Unit,
+    onNavigateToNotes: () -> Unit = {}
 ){
-    val navigator = rememberListDetailPaneScaffoldNavigator<Long>()
-    Log.d("SelectedViewModel", "SELECTED in NoteApp: ${uiState.selectedNote?.toNoteDetails()}")
-    Log.d("ViewModel", "NOTEDETAILS in NoteApp: ${uiState.noteDetails}")
+    val selectedNote = uiState.selectedNote
+    val isEntryValid = uiState.isEntryValid
+    val navigator = rememberListDetailPaneScaffoldNavigator<Int>()
+
+    Log.d("SelectedViewModel", "SELECTED in NoteApp: ${uiState.selectedNote}")
+
     BackHandler(navigator.canNavigateBack()) {
         navigator.navigateBack()
     }
@@ -224,7 +228,7 @@ fun NotesDestination(
                                    onUpdateNote = onUpdateNote,
                                    onNoteClick = {
                                        onNoteClick(it)
-                                       navigator.navigateTo(ListDetailPaneScaffoldRole.Detail, it.id.toLong())
+                                       navigator.navigateTo(ListDetailPaneScaffoldRole.Detail, it.id)
                                    },
                                    onFavoriteClick = {onNoteClick(it)}
                                )
@@ -236,12 +240,17 @@ fun NotesDestination(
         },
         detailPane = {
             AnimatedPane {
-                if(uiState.selectedNote != null){
+                if(selectedNote != null){
                     NoteDetailPane(
-                        uiState = uiState,
+                        selectedNote = selectedNote,
                         onDetailChange = onNoteChange,
-                        onDelete = onDelete,
-                        onSubmit = onUpdateNote
+                        onDelete = {
+                            onDelete()
+                            navigator.navigateTo(ListDetailPaneScaffoldRole.List) },
+                        onSubmit = {
+                            onUpdateNote()
+                            navigator.navigateTo(ListDetailPaneScaffoldRole.List) },
+                        isEntryValid = isEntryValid
                     )
                 } else {
                     ImageNoNotes()
@@ -256,7 +265,7 @@ fun NotesDestination(
 @Composable
 fun AddDestination(
     uiState: NoteUIState,
-    onNoteAdd: (NoteDetails) -> Unit,
+    onNoteAdd: (Note) -> Unit,
     entryViewModel: EntryViewModel,
     onNavigateToNotes: () -> Unit
 ){

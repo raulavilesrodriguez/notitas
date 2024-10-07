@@ -1,6 +1,7 @@
 package com.example.empresa1.ui
 
 import androidx.lifecycle.ViewModel
+import com.example.empresa1.data.Note
 import com.example.empresa1.data.NoteRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -15,14 +16,14 @@ class EntryViewModel(
     private val _uiState = MutableStateFlow(NoteUIState())
     val uiState: StateFlow<NoteUIState> = _uiState.asStateFlow()
 
-    private fun validateInput(uiState: NoteDetails = _uiState.value.noteDetails): Boolean {
+    private fun validateInput(uiState: Note? = _uiState.value.selectedNote): Boolean {
         return with(uiState) {
-            tittle.isNotBlank() && text.isNotBlank() && topic.isNotBlank()
+            this!!.tittle.isNotBlank() && text.isNotBlank() && topic.isNotBlank()
         }
     }
-    fun updateNoteDetails(noteDetails: NoteDetails){
+    fun updateNoteDetails(selectedNote: Note){
         _uiState.update {
-            it.copy(noteDetails = noteDetails, isEntryValid = validateInput(noteDetails))
+            it.copy(selectedNote = selectedNote, isEntryValid = validateInput(selectedNote))
         }
     }
 
@@ -31,12 +32,16 @@ class EntryViewModel(
      */
     suspend fun saveNote(){
         if(validateInput()){
-            noteRepository.insertNote(_uiState.value.noteDetails.toNote())
-            resetInput()
+            noteRepository.insertNote(_uiState.value.selectedNote?:Note())
         }
+        resetInput()
     }
 
     fun resetInput(){
-        _uiState.value = NoteUIState()
+        _uiState.update {
+            it.copy(
+                selectedNote = Note()
+            )
+        }
     }
 }

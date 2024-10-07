@@ -50,7 +50,7 @@ import com.example.empresa1.ui.theme.Empresa1Theme
 fun HomeScreen(
     uiState: NoteUIState,
     notes: List<Note>,
-    onNoteChange: (NoteDetails) -> Unit,
+    onNoteChange: (Note) -> Unit,
     onUpdateNote: () -> Unit,
     onNoteClick: (Note) -> Unit,
     onFavoriteClick: (Note) -> Unit,
@@ -76,7 +76,7 @@ fun HomeScreen(
 private fun NotesList(
     uiState: NoteUIState,
     notes: List<Note>,
-    onNoteChange: (NoteDetails) -> Unit,
+    onNoteChange: (Note) -> Unit,
     onUpdateNote: () -> Unit,
     onNoteClick: (Note) -> Unit,
     onFavoriteClick: (Note) -> Unit,
@@ -89,20 +89,20 @@ private fun NotesList(
             val avatar = LocalAvatarsData.avatars.firstOrNull { avatar ->
                 stringResource(id = avatar.description) == it.topic} ?: LocalAvatarsData.avatars.first()
             NoteCard(
-                noteDetails = uiState.noteDetails,
                 note = it,
+                onNoteClick = onNoteClick,
                 onNoteChange = onNoteChange,
                 onUpdateNote = onUpdateNote,
                 onFavoriteClick = onFavoriteClick,
                 avatar = avatar,
                 modifier = Modifier
-                    .padding(dimensionResource(id = R.dimen.padding_small))
-                    .clickable { onNoteClick(it) },
+                    .padding(dimensionResource(id = R.dimen.padding_small)),
                 color = if(it.id == uiState.selectedNote?.id){
                     MaterialTheme.colorScheme.inverseSurface
                 } else {
                     MaterialTheme.colorScheme.inverseOnSurface
                 }
+
             )
         }
     }
@@ -140,20 +140,20 @@ fun SearchBar(
 
 @Composable
 private fun NoteCard(
-    noteDetails: NoteDetails,
     note: Note,
-    onNoteChange: (NoteDetails) -> Unit,
+    onNoteClick: (Note) -> Unit,
+    onNoteChange: (Note) -> Unit,
     onUpdateNote: () -> Unit,
     onFavoriteClick: (Note) -> Unit,
     avatar: Avatar,
     modifier: Modifier = Modifier,
     color: Color
 ){
-    var addOrDeleteFavorites by rememberSaveable { mutableStateOf(note.favorite) }
     Surface(
         shape = MaterialTheme.shapes.medium,
         color = color,
-        modifier = modifier.fillMaxWidth()
+        modifier = modifier.fillMaxWidth(),
+        onClick = {onNoteClick(note)}
     ) {
         Column(
             modifier = Modifier
@@ -181,58 +181,30 @@ private fun NoteCard(
                             .padding(start = dimensionResource(id = R.dimen.padding_small))
                     )
                 }
-                if(addOrDeleteFavorites){
-                    Log.d("SelectedNOTEE", "SELECTED in HomeScreen: $note")
-                    IconButton(
-                        onClick = {
-                            onNoteChange(noteDetails.copy(
-                                id = note.id,
-                                tittle = note.tittle,
-                                text = note.text,
-                                topic = note.topic,
-                                favorite = false,
-                                rating = note.rating,
-                                created = note.created ?: ""
-                            ))
-                            onUpdateNote()
-                            onFavoriteClick(note)
-                            addOrDeleteFavorites = false
-                        },
-                        modifier = Modifier
-                            .clip(CircleShape)
-                            .background(MaterialTheme.colorScheme.surface)
-                    ) {
+                IconButton(
+                    onClick = {
+                        val updatedNote = note.copy(favorite = !note.favorite)
+                        onNoteChange(updatedNote)
+                        onUpdateNote()
+                        onFavoriteClick(updatedNote)
+                    },
+                    modifier = Modifier
+                        .clip(CircleShape)
+                        .background(MaterialTheme.colorScheme.surface)
+                ) {
+                    if (note.favorite) {
                         Image(
                             painter = painterResource(R.drawable.star_filled),
                             contentDescription = stringResource(R.string.favorite_notes)
                         )
-                    }
-                } else {
-                    IconButton(
-                        onClick = {
-                            onNoteChange(noteDetails.copy(
-                                id = note.id,
-                                tittle = note.tittle,
-                                text = note.text,
-                                topic = note.topic,
-                                favorite = true,
-                                rating = note.rating,
-                                created = note.created ?: ""
-                            ))
-                            onUpdateNote()
-                            onFavoriteClick(note)
-                            addOrDeleteFavorites = true
-                        },
-                        modifier = Modifier
-                            .clip(CircleShape)
-                            .background(MaterialTheme.colorScheme.surface)
-                    ) {
+                    } else {
                         Image(
                             painter = painterResource(R.drawable.star_border),
                             contentDescription = stringResource(R.string.favorite_notes)
                         )
                     }
                 }
+
             }
         }
     }
@@ -259,8 +231,8 @@ private fun NoteImage(
 private fun NoteCardPreview(){
     Empresa1Theme{
         NoteCard(
-            noteDetails = NoteDetails(),
             note = Note(0, "Info Bco Pichincha", "Clave:1234, gbh@gmai.com", "Finanzas"),
+            onNoteClick = {},
             onNoteChange = {},
             onUpdateNote = {},
             onFavoriteClick = {},

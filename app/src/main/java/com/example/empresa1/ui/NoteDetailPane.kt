@@ -28,6 +28,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.empresa1.R
+import com.example.empresa1.data.Note
 import com.example.empresa1.data.Topics
 import com.example.empresa1.ui.components.NoteSpinnerRow
 import com.example.empresa1.ui.components.RatingInputRow
@@ -35,23 +36,24 @@ import com.example.empresa1.ui.theme.Empresa1Theme
 
 @Composable
 fun NoteDetailPane(
-    uiState: NoteUIState,
+    selectedNote: Note,
     modifier: Modifier = Modifier,
-    onDetailChange: (NoteDetails) -> Unit,
+    onDetailChange: (Note) -> Unit={},
     onDelete: () -> Unit,
-    onSubmit: () -> Unit
+    onSubmit: () -> Unit,
+    isEntryValid: Boolean
 ){
     Column(
         modifier = modifier.padding(dimensionResource(id = R.dimen.padding_small))
     ) {
         NoteInputForm(
-            noteDetails = uiState.noteDetails,
+            noteDetails = selectedNote,
             onDetailChange = onDetailChange
         )
         ButtonRow(
             onCancel = onDelete,
             onSubmit = onSubmit,
-            submitButtonEnabled = uiState.isEntryValid,
+            submitButtonEnabled = isEntryValid,
             descriptionButtonLeft = stringResource(R.string.delete)
         )
         HorizontalDivider()
@@ -62,7 +64,7 @@ fun NoteDetailPane(
             modifier = modifier.padding(start = dimensionResource(id = R.dimen.padding_medium)),
             verticalAlignment = Alignment.CenterVertically
         ){
-            if(uiState.isEntryValid){
+            if(isEntryValid){
                 MessageInput(
                     message = R.string.correct_update,
                     avatar = R.drawable.happy,
@@ -81,9 +83,9 @@ fun NoteDetailPane(
 
 @Composable
 fun NoteInputForm(
-    noteDetails: NoteDetails,
+    noteDetails: Note,
     modifier: Modifier = Modifier,
-    onDetailChange: (NoteDetails) -> Unit
+    onDetailChange: (Note) -> Unit
 ){
     Card(
         modifier = modifier
@@ -98,8 +100,8 @@ fun NoteInputForm(
             verticalArrangement = Arrangement.spacedBy(dimensionResource(id = R.dimen.padding_medium))
         ) {
             TittleInputRow(
-                noteDetails = noteDetails,
-                onDetailChange = onDetailChange
+                fieldValue = noteDetails.tittle,
+                onValueChange = {onDetailChange(noteDetails.copy(tittle = it)) }
             )
             NoteSpinnerRow(
                 noteSpinnerPosition = findTopicIndex(noteDetails.topic),
@@ -109,9 +111,7 @@ fun NoteInputForm(
             )
             TextField(
                 value = noteDetails.text,
-                onValueChange = {
-                    onDetailChange(noteDetails.copy(text = it))
-                                },
+                onValueChange = { onDetailChange(noteDetails.copy(text = it)) },
                 colors = OutlinedTextFieldDefaults.colors(
                     focusedContainerColor = MaterialTheme.colorScheme.secondaryContainer,
                     unfocusedContainerColor = MaterialTheme.colorScheme.secondaryContainer,
@@ -125,26 +125,25 @@ fun NoteInputForm(
             )
             RatingInputRow(
                 rating = noteDetails.rating,
-                onRatingChange = {rating ->
-                    onDetailChange(noteDetails.copy(rating = rating))
+                onRatingChange = {
+                    onDetailChange(noteDetails.copy(rating = it.toInt()))
                 }
             )
+
         }
     }
 }
 
 @Composable
 fun TittleInputRow(
-    noteDetails: NoteDetails,
+    fieldValue: String,
     modifier: Modifier = Modifier,
-    onDetailChange: (NoteDetails) -> Unit
+    onValueChange: (String) -> Unit
 ){
     InputRow(inputLabel = stringResource(id = R.string.tittle), modifier = modifier) {
         OutlinedTextField(
-            value = noteDetails.tittle,
-            onValueChange = {
-                onDetailChange(noteDetails.copy(tittle = it))
-            },
+            value = fieldValue,
+            onValueChange = onValueChange,
             colors = OutlinedTextFieldDefaults.colors(
                 focusedContainerColor = MaterialTheme.colorScheme.secondaryContainer,
                 unfocusedContainerColor = MaterialTheme.colorScheme.secondaryContainer,
@@ -221,7 +220,7 @@ private fun MessageInput(
 private fun NoteDetailPanePreview(){
     Empresa1Theme {
         NoteInputForm(
-            noteDetails = NoteDetails(),
+            noteDetails = Note(),
             onDetailChange = {}
         )
     }

@@ -59,7 +59,7 @@ class FavoriteViewModel (
                 _uiState.value = NoteUIState(
                     notesList = it,
                     selectedNote = currentSelected ?: it.firstOrNull(),
-                    isEntryValid = validateInput(it.firstOrNull()?.toNoteDetails() ?: NoteDetails())
+                    isEntryValid = validateInput(it.firstOrNull()?:Note())
                 )
             }
         }
@@ -68,15 +68,15 @@ class FavoriteViewModel (
     /**
      * to Update notes
      */
-    private fun validateInput(uiState: NoteDetails = _uiState.value.noteDetails): Boolean {
+    private fun validateInput(uiState: Note = _uiState.value.selectedNote?:Note()): Boolean {
         return with(uiState) {
             tittle.isNotBlank() && text.isNotBlank() && topic.isNotBlank()
         }
     }
 
-    fun updateNoteDetails(noteDetails: NoteDetails){
+    fun updateNoteDetails(selectedNote: Note){
         _uiState.update {
-            it.copy(noteDetails = noteDetails, isEntryValid = validateInput(noteDetails))
+            it.copy(selectedNote = selectedNote, isEntryValid = validateInput(selectedNote))
         }
     }
 
@@ -84,8 +84,8 @@ class FavoriteViewModel (
      *  to UPDATE Notes
      */
     suspend fun updateNote(){
-        if(validateInput(_uiState.value.noteDetails)){
-            noteRepository.updateNote(_uiState.value.noteDetails.toNote())
+        if(validateInput()){
+            noteRepository.updateNote(_uiState.value.selectedNote ?: Note())
         }
         _uiState.update {
             it.copy(
@@ -99,7 +99,7 @@ class FavoriteViewModel (
      * to DELETE Notes
      */
     suspend fun deleteNote(){
-        noteRepository.deleteNote(_uiState.value.noteDetails.toNote())
+        noteRepository.deleteNote(_uiState.value.selectedNote ?: Note())
         _uiState.update {
             it.copy(
                 selectedNote = null
